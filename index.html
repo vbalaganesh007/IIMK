@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIMK Student Portal</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+/* ── TOP NAV ─────────────────────────────────────────────────── */
+.topnav {
+  background: #0a1628;
+  border-bottom: 1px solid #1e3a5f;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 8px;
+}
+.nav-logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  margin-right: 24px;
+  padding-right: 24px;
+  border-right: 1px solid #1e3a5f;
+}
+.nav-logo span { color: #3b82f6; }
+.nav-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.nav-btn:hover { background: #1e293b; color: #cbd5e1; }
+.nav-btn.active { background: #1e3a5f; color: #fff; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.clock-chip {
+  background: #0f172a;
+  border: 1px solid #1e3a5f;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #60a5fa;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── PAGES ───────────────────────────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ══════════════════════════════════════════════════════════════
+   MESS MENU PAGE
+══════════════════════════════════════════════════════════════ */
+.menu-header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #0f2744 100%);
+  padding: 20px 28px 0;
+  border-bottom: 1px solid #1e3a5f44;
+}
+.menu-header h2 { font-size: 1.3rem; font-weight: 700; color: #fff; }
+.menu-header p  { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+
+/* Day tabs */
+.day-tabs { display: flex; gap: 4px; margin-top: 16px; flex-wrap: wrap; }
+.day-tab {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 9px 16px;
+  border-radius: 8px 8px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+.day-tab:hover { color: #cbd5e1; background: #1e293b55; }
+.day-tab.active { color: #fff; background: #1e293b; border-bottom: 3px solid #3b82f6; }
+.day-tab.today-tab { position: relative; }
+.day-tab.today-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 5px; right: 6px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+/* Active meal banner */
+#meal-banner {
+  margin: 16px 28px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: #1e293b;
+  border-left: 4px solid #3b82f6;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#meal-banner.bf { border-color: #f59e0b; background: #1e1a0e; }
+#meal-banner.ln { border-color: #22c55e; background: #0a1a0e; }
+#meal-banner.dn { border-color: #818cf8; background: #0f0f1a; }
+#meal-banner.none { border-color: #475569; }
+.banner-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pill-bf { background: #78350f; color: #fde68a; }
+.pill-ln { background: #14532d; color: #86efac; }
+.pill-dn { background: #1e1b4b; color: #c7d2fe; }
+.pill-none { background: #1e293b; color: #64748b; }
+
+/* Meal cards grid */
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 4px 28px 32px;
+}
+@media (max-width: 900px) {
+  .meal-grid { grid-template-columns: 1fr; }
+}
+
+.meal-card {
+  background: #1e293b;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #263348;
+  transition: box-shadow 0.3s;
+}
+.meal-card.active-meal {
+  border-color: #3b82f688;
+  box-shadow: 0 0 0 1px #3b82f644, 0 4px 24px #3b82f622;
+}
+.meal-card.active-meal.bf { border-color: #f59e0b88; box-shadow: 0 0 0 1px #f59e0b44, 0 4px 24px #f59e0b22; }
+.meal-card.active-meal.ln { border-color: #22c55e88; box-shadow: 0 0 0 1px #22c55e44, 0 4px 24px #22c55e22; }
+.meal-card.active-meal.dn { border-color: #818cf888; box-shadow: 0 0 0 1px #818cf844, 0 4px 24px #818cf822; }
+
+.meal-card-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.meal-card-header.bf { background: linear-gradient(90deg, #78350f44, #1e293b); }
+.meal-card-header.ln { background: linear-gradient(90deg, #14532d44, #1e293b); }
+.meal-card-header.dn { background: linear-gradient(90deg, #1e1b4b44, #1e293b); }
+
+.meal-icon { font-size: 1.4rem; }
+.meal-title { font-size: 0.95rem; font-weight: 700; color: #f1f5f9; }
+.meal-time  { font-size: 0.72rem; color: #64748b; margin-top: 1px; }
+.active-dot {
+  margin-left: auto;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.meal-items { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+
+.food-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  transition: background 0.15s;
+}
+.food-item:hover { background: #162032; }
+.food-item.veg   { border-left: 3px solid #22c55e; }
+.food-item.egg   { border-left: 3px solid #f59e0b; }
+.food-item.nonveg { border-left: 3px solid #ef4444; }
+
+.food-name { font-size: 0.83rem; color: #e2e8f0; flex: 1; }
+
+.type-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge-veg    { background: #14532d; color: #86efac; }
+.badge-egg    { background: #78350f; color: #fde68a; }
+.badge-nonveg { background: #7f1d1d; color: #fca5a5; }
+
+/* Legend */
+.menu-legend {
+  display: flex;
+  gap: 16px;
+  padding: 0 28px 12px;
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #64748b; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+.leg-veg    { background: #22c55e; }
+.leg-egg    { background: #f59e0b; }
+.leg-nonveg { background: #ef4444; }
+
+/* ══════════════════════════════════════════════════════════════
+   BUS TIMINGS PAGE
+══════════════════════════════════════════════════════════════ */
+.bus-header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+  padding: 20px 28px;
+  border-bottom: 1px solid #1e40af44;
+}
+.bus-header h2 { font-size: 1.3rem; font-weight: 700; color: #fff; }
+.bus-header p  { font-size: 0.8rem; color: #94a3b8; margin-top: 3px; }
+
+#next-banner {
+  margin: 16px 28px;
+  background: linear-gradient(90deg, #065f4622, #064e3b44);
+  border: 1px solid #10b981aa;
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.4s;
+}
+#next-banner.urgent { background: linear-gradient(90deg, #7f1d1d33, #991b1b44); border-color: #f87171aa; }
+.banner-icon { font-size: 1.3rem; }
+.banner-label { font-size: 0.7rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+#next-banner.urgent .banner-label { color: #fca5a5; }
+.banner-trip { font-size: 0.95rem; font-weight: 600; color: #fff; margin-top: 2px; }
+.banner-countdown { margin-left: auto; text-align: right; }
+.countdown-num { font-size: 1.2rem; font-weight: 700; color: #34d399; font-variant-numeric: tabular-nums; }
+#next-banner.urgent .countdown-num { color: #f87171; }
+.countdown-lbl { font-size: 0.68rem; color: #64748b; }
+
+.tabs-container { padding: 16px 28px 0; }
+.tabs { display: flex; gap: 5px; flex-wrap: wrap; border-bottom: 2px solid #1e3a5f; padding-bottom: 0; }
+.tab-btn {
+  background: transparent; border: none; cursor: pointer;
+  padding: 9px 16px; border-radius: 10px 10px 0 0;
+  font-size: 0.8rem; font-weight: 600; color: #64748b;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.tab-btn:hover { color: #cbd5e1; background: #1e293b; }
+.tab-btn.active { color: #fff; background: #1e293b; border-bottom: 3px solid #3b82f6; }
+.tab-count {
+  background: #1e40af; color: #bfdbfe;
+  font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 20px;
+}
+.tab-btn.active .tab-count { background: #3b82f6; color: #fff; }
+
+.bus-content { padding: 0 28px 40px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.route-strip {
+  background: #1e293b; border-radius: 0 0 10px 10px;
+  padding: 12px 18px; display: flex; align-items: center;
+  gap: 7px; flex-wrap: wrap; margin-bottom: 16px;
+  font-size: 0.8rem; color: #94a3b8;
+}
+.stop-badge {
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 20px; padding: 3px 11px;
+  font-weight: 600; color: #e2e8f0; font-size: 0.78rem;
+}
+.route-arrow { color: #3b82f6; }
+
+.bus-legend { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.bus-legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.73rem; color: #64748b; }
+.bdot { width: 9px; height: 9px; border-radius: 50%; }
+.dot-next { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+.dot-upcoming { background: #475569; }
+.dot-past { background: #1e293b; border: 1px solid #334155; }
+
+.schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
+.schedule-table thead th {
+  text-align: left; padding: 8px 14px;
+  font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 1px; color: #475569; font-weight: 600;
+}
+.trip-row { background: #1e293b; transition: all 0.2s; }
+.trip-row:hover { background: #263148; transform: translateX(2px); }
+.trip-row td { padding: 12px 14px; vertical-align: middle; }
+.trip-row td:first-child { border-radius: 10px 0 0 10px; }
+.trip-row td:last-child  { border-radius: 0 10px 10px 0; }
+
+.trip-row.next-trip {
+  background: linear-gradient(90deg,#1e3a5f,#1e3558);
+  box-shadow: 0 0 0 2px #3b82f6, 0 4px 20px #3b82f622;
+}
+.trip-row.next-trip td:first-child::before {
+  content: '▶ NEXT'; display: block;
+  font-size: 0.58rem; font-weight: 800; color: #60a5fa; letter-spacing: 1px; margin-bottom: 2px;
+}
+.trip-row.past-trip { opacity: 0.35; }
+
+.sl-num  { font-size: 0.72rem; color: #475569; font-weight: 600; }
+.time-cell { font-size: 1rem; font-weight: 700; color: #f1f5f9; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.next-trip .time-cell { color: #60a5fa; }
+
+.stop-cells { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.stop-chip {
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 6px; padding: 3px 9px; font-size: 0.75rem; color: #cbd5e1;
+}
+.next-trip .stop-chip { border-color: #1d4ed8; color: #bfdbfe; background: #1e3a5f; }
+.stop-arrow { color: #475569; font-size: 0.75rem; }
+.next-trip .stop-arrow { color: #3b82f6; }
+
+.note-cell { font-size: 0.7rem; color: #64748b; font-style: italic; }
+.note-cell.special { color: #a78bfa; }
+
+.status-pill { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-upcoming { background: #1e3a5f; color: #60a5fa; }
+.status-next { background: #1d4ed8; color: #fff; animation: blink 1.5s infinite; }
+.status-past { background: #1e293b; color: #475569; }
+
+@media (max-width: 600px) {
+  .topnav { padding: 0 14px; }
+  .meal-grid, .bus-content, .tabs-container, #next-banner, .menu-legend, #meal-banner { padding-left: 14px; padding-right: 14px; }
+  .menu-header, .bus-header { padding-left: 14px; padding-right: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ──────────────────────────────────────────────────────────── -->
+<nav class="topnav">
+  <div class="nav-logo">IIM<span>K</span></div>
+  <button class="nav-btn active" id="nav-menu" onclick="switchPage('menu')">🍽️ Mess Menu</button>
+  <button class="nav-btn" id="nav-bus" onclick="switchPage('bus')">🚌 Bus Timings</button>
+  <div class="nav-right">
+    <div class="clock-chip" id="nav-clock">--:-- --</div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MESS MENU PAGE
+══════════════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-menu">
+  <div class="menu-header">
+    <h2>🍽️ Mess Menu — June 2026</h2>
+    <p>Daily meal schedule with veg &amp; non-veg highlights</p>
+    <div class="day-tabs" id="day-tabs"></div>
+  </div>
+
+  <div id="meal-banner">
+    <span style="font-size:1.1rem">🕐</span>
+    <div id="meal-banner-text">Loading...</div>
+  </div>
+
+  <div class="menu-legend">
+    <div class="legend-item"><div class="leg-dot leg-veg"></div> Vegetarian</div>
+    <div class="legend-item"><div class="leg-dot leg-egg"></div> Egg</div>
+    <div class="legend-item"><div class="leg-dot leg-nonveg"></div> Non-Vegetarian</div>
+  </div>
+
+  <div class="meal-grid" id="meal-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     BUS TIMINGS PAGE
+══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-bus">
+  <div class="bus-header">
+    <h2>🚌 Bus Schedule</h2>
+    <p>Students Bus Timings w.e.f. 09.06.2026</p>
+  </div>
+
+  <div id="next-banner">
+    <div class="banner-icon">🚌</div>
+    <div>
+      <div class="banner-label" id="banner-label">Next Bus</div>
+      <div class="banner-trip" id="banner-trip">Loading...</div>
+    </div>
+    <div class="banner-countdown">
+      <div class="countdown-num" id="banner-countdown">--</div>
+      <div class="countdown-lbl">minutes away</div>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs" id="bus-tabs"></div>
+  </div>
+  <div class="bus-content" id="bus-content"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════════════════════════════ -->
+<script>
+// ─── MESS MENU DATA ───────────────────────────────────────────────────────────
+// Keys: 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat (matches JS getDay())
+const V='veg', E='egg', N='nonveg';
+const FIXED_BF = [
+  {name:'Boiled Egg', type:E},
+  {name:'Cornflakes / Chocos', type:V},
+  {name:'Boiled Pulses', type:V},
+  {name:'Bread / Butter / Jam', type:V},
+  {name:'Tea / Coffee / Milk', type:V},
+];
+const FIXED_BF_FRUIT = {
+  1:{name:'Banana',type:V}, 2:{name:'Cut Fruits (Watermelon)',type:V},
+  3:{name:'Banana',type:V}, 4:{name:'Cut Fruits (Papaya)',type:V},
+  5:{name:'Cut Fruits (Watermelon)',type:V}, 6:{name:'Banana',type:V},
+  0:{name:'Cut Fruits (Papaya)',type:V}
+};
+
+const messMenu = {
+  1: { // Monday
+    breakfast: [
+      {name:'Idli',type:V},{name:'Medu Vada',type:V},
+      {name:'Coconut Chutney',type:V},{name:'Sambhar',type:V},
+      {name:'Banana',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Arhar Dal',type:V},{name:'Raw Banana Dry',type:V},
+      {name:'Moong Curry',type:V},{name:'Lemon Rice',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Egg Curry',type:E}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Bathura / Phulka',type:V},
+      {name:'Chole Masala',type:V},{name:'Mix Veg Poriyal',type:V},
+      {name:'Veg Biryani',type:V},{name:'Lowni Dal',type:V},
+      {name:'Curd',type:V},{name:'Pappad',type:V},
+      {name:'Ice Cream (50 ml)',type:V},{name:'Pickle',type:V},
+      {name:'Chicken',type:N}
+    ]
+  },
+  2: { // Tuesday
+    breakfast: [
+      {name:'Methi Paratha',type:V},{name:'Semiya Upma',type:V},
+      {name:'Veg Korma',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Cut Fruits (Watermelon)',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Dal Tadka',type:V},{name:'Pumpkin Dry',type:V},
+      {name:'Veg Koftha Curry',type:V},{name:'Coconut Pulao',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Mutter Masala',type:V},{name:'Aloo Kara Poriyal',type:V},
+      {name:'Corn Pulao',type:V},{name:'Tomato Pappu',type:V},
+      {name:'Cucumber Chilli Raita',type:V},{name:'Fryums',type:V},
+      {name:'Sweet',type:V},{name:'Paneer Butter Masala',type:V},
+      {name:'Chicken Curry',type:N}
+    ]
+  },
+  3: { // Wednesday
+    breakfast: [
+      {name:'Masala Dosa',type:V},{name:'Veg Wheat Upma',type:V},
+      {name:'Sambar',type:V},{name:'Coriander Chutney',type:V},
+      {name:'Banana',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Dal Fry',type:V},{name:'Cabbage Poriyal',type:V},
+      {name:'Chole Masala',type:V},{name:'Tamarind Rice',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Egg Masala',type:E}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Veg Makhanwala',type:V},{name:'Beetroot Dry',type:V},
+      {name:'Jeera Pulao',type:V},{name:'Dal Fry',type:V},
+      {name:'Buttermilk',type:V},{name:'Fryums',type:V},
+      {name:'Sweet',type:V},{name:'Kadai Paneer',type:V},
+      {name:'Pepper Chicken',type:N}
+    ]
+  },
+  4: { // Thursday
+    breakfast: [
+      {name:'Poori',type:V},{name:'Semiya Upma',type:V},
+      {name:'Aloo Bajhi',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Cut Fruits (Papaya)',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Palak Dal',type:V},{name:'Bottle Gourd Dry',type:V},
+      {name:'Mattar Masala',type:V},{name:'Thawa Pulao',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Soya Andhra Style Chilli',type:V},{name:'Thawa Veg',type:V},
+      {name:'Jeera Rice',type:V},{name:'Pappad',type:V},
+      {name:'Sweet',type:V},{name:'Rice Phirini',type:V},
+      {name:'Chilli Paneer',type:V},{name:'Chilli Chicken',type:N}
+    ]
+  },
+  5: { // Friday
+    breakfast: [
+      {name:'Idli',type:V},{name:'Aloo Poha',type:V},
+      {name:'Sambar',type:V},{name:'Mint Chutney',type:V},
+      {name:'Cut Fruits (Watermelon)',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Yellow Dal',type:V},{name:'Veg Dry',type:V},
+      {name:'Kadala Curry',type:V},{name:'Jeera Rice',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Egg Roast',type:E}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Raitha',type:V},{name:'Veg Fried Rice',type:V},
+      {name:'Buttermilk',type:V},{name:'Pickle',type:V},
+      {name:'Paneer Mattar Masala',type:V},
+      {name:'Chicken Dum Biryani',type:N}
+    ]
+  },
+  6: { // Saturday
+    breakfast: [
+      {name:'Pesarattu',type:V},{name:'Karabath',type:V},
+      {name:'Green Chutney',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Banana',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Dal Makhani',type:V},{name:'Soya Capsicum Dry',type:V},
+      {name:'Veg Chettinadu',type:V},{name:'Tomato Rice',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+    ],
+    dinner: [
+      {name:'Combo Menu',type:V},{name:'Paneer Mattar Masala',type:V},
+      {name:'Mishti Pulao',type:V},{name:'Moong Dal Tadka',type:V},
+      {name:'Plain Chapati',type:V},{name:'Pryums',type:V},{name:'Pickle',type:V}
+    ]
+  },
+  0: { // Sunday
+    breakfast: [
+      {name:'PAV',type:V},{name:'Veg Uthapam',type:V},
+      {name:'Bajhi',type:V},{name:'Coconut Red Chutney',type:V},
+      {name:'Cut Fruits (Papaya)',type:V},...FIXED_BF
+    ],
+    lunch: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Bengal Gram Dal Fry',type:V},{name:'Aloo Bhindi Dry',type:V},
+      {name:'Rajma Raseela',type:V},{name:'Vangi Bhat',type:V},
+      {name:'Rice',type:V},{name:'Sambar',type:V},
+      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
+      {name:'Pickle',type:V},{name:'Egg Curry',type:E}
+    ],
+    dinner: [
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Lobiya Masala',type:V},{name:'Aloo Gobi Kashmiri Dry',type:V},
+      {name:'Veg Pulao',type:V},{name:'Dal Maharani',type:V},
+      {name:'Buttermilk',type:V},{name:'Pryums',type:V},{name:'Pickle',type:V},
+      {name:'Chicken Roast',type:N}
+    ]
+  }
+};
+
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const MEALS = [
+  { key:'breakfast', icon:'☀️', label:'Breakfast', time:'8:00 AM – 10:00 AM', cls:'bf', start:480, end:600 },
+  { key:'lunch',     icon:'🍛', label:'Lunch',     time:'1:00 PM – 2:30 PM',  cls:'ln', start:780, end:870 },
+  { key:'dinner',    icon:'🌙', label:'Dinner',    time:'8:00 PM – 10:00 PM', cls:'dn', start:1200,end:1320 },
+];
+
+let activeMenuDay = new Date().getDay();
+
+function nowMins() {
+  const d = new Date();
+  return d.getHours() * 60 + d.getMinutes();
+}
+
+function activeMeal() {
+  const n = nowMins();
+  return MEALS.find(m => n >= m.start && n <= m.end) || null;
+}
+
+// ─── RENDER MESS MENU ─────────────────────────────────────────────────────────
+function buildMenuDayTabs() {
+  const today = new Date().getDay();
+  const el = document.getElementById('day-tabs');
+  el.innerHTML = DAY_SHORT.map((d, i) => `
+    <button class="day-tab ${i === activeMenuDay ? 'active' : ''} ${i === today ? 'today-tab' : ''}"
+      onclick="setMenuDay(${i})">${d}${i===today?' ·today':''}</button>
+  `).join('');
+}
+
+function setMenuDay(dayIdx) {
+  activeMenuDay = dayIdx;
+  buildMenuDayTabs();
+  renderMenuGrid();
+}
+
+function renderMenuGrid() {
+  const am = activeMeal();
+  const data = messMenu[activeMenuDay];
+
+  // Banner
+  const banner = document.getElementById('meal-banner');
+  const bannerText = document.getElementById('meal-banner-text');
+  const today = new Date().getDay();
+
+  if (am && activeMenuDay === today) {
+    banner.className = `meal-banner ${am.cls}`;
+    bannerText.innerHTML = `<span class="banner-pill pill-${am.cls}">${am.label} is on now</span> <strong style="color:#f1f5f9;margin-left:6px">${am.time}</strong>`;
+  } else if (activeMenuDay !== today) {
+    banner.className = 'meal-banner';
+    bannerText.innerHTML = `<span class="banner-pill pill-none">Viewing</span> <strong style="color:#f1f5f9;margin-left:6px">${DAY_NAMES[activeMenuDay]}'s menu</strong>`;
+  } else {
+    // Today but no active meal
+    const next = MEALS.find(m => nowMins() < m.start);
+    banner.className = 'meal-banner none';
+    if (next) {
+      const mins = next.start - nowMins();
+      const h = Math.floor(mins/60), m = mins%60;
+      const t = h > 0 ? `${h}h ${m}m` : `${m} min`;
+      bannerText.innerHTML = `<span class="banner-pill pill-none">Next meal</span> <strong style="color:#f1f5f9;margin-left:6px">${next.label} in ${t}</strong>`;
+    } else {
+      bannerText.innerHTML = `<span class="banner-pill pill-none">Mess closed</span> <span style="color:#64748b;margin-left:6px">No more meals today</span>`;
+    }
+  }
+
+  // Meal cards
+  const grid = document.getElementById('meal-grid');
+  grid.innerHTML = MEALS.map(meal => {
+    const items = data[meal.key] || [];
+    const isActive = am && am.key === meal.key && activeMenuDay === today;
+    return `
+      <div class="meal-card ${isActive ? 'active-meal ' + meal.cls : ''}">
+        <div class="meal-card-header ${meal.cls}">
+          <span class="meal-icon">${meal.icon}</span>
+          <div>
+            <div class="meal-title">${meal.label}</div>
+            <div class="meal-time">${meal.time}</div>
+          </div>
+          ${isActive ? '<div class="active-dot"></div>' : ''}
+        </div>
+        <div class="meal-items">
+          ${items.map(it => `
+            <div class="food-item ${it.type}">
+              <span class="food-name">${it.name}</span>
+              <span class="type-badge badge-${it.type}">${it.type === 'nonveg' ? 'Non-Veg' : it.type === 'egg' ? 'Egg' : 'Veg'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── BUS TIMINGS DATA ─────────────────────────────────────────────────────────
+const clusters = [
+  {
+    id:'c2d-to-campus', icon:'🏠', label:'C&D → Campus',
+    route:['C&D Housing','Phase V Campus','PGP Auditorium'],
+    trips:[
+      {sl:1,time:'8:55 AM',note:''},{sl:3,time:'10:25 AM',note:''},
+      {sl:5,time:'10:37 AM',note:''},{sl:9,time:'12:07 PM',note:''},
+      {sl:11,time:'1:38 PM',note:''},{sl:15,time:'2:17 PM',note:''},
+      {sl:19,time:'3:52 PM',note:''},{sl:23,time:'5:22 PM',note:''},
+      {sl:27,time:'6:52 PM',note:''},{sl:31,time:'8:15 PM',note:'Phase V @ 8:20 PM'},
+    ]
+  },
+  {
+    id:'campus-to-c2d', icon:'🎓', label:'Campus → C&D',
+    route:['PGP Auditorium','Phase V Campus','C&D Housing'],
+    trips:[
+      {sl:2,time:'9:05 AM',note:''},{sl:4,time:'10:35 AM',note:''},
+      {sl:8,time:'12:08 PM',note:''},{sl:10,time:'1:35 PM',note:''},
+      {sl:14,time:'2:15 PM',note:''},{sl:18,time:'3:50 PM',note:''},
+      {sl:22,time:'5:20 PM',note:''},{sl:26,time:'6:50 PM',note:''},
+      {sl:30,time:'8:10 PM',note:''},{sl:34,time:'9:30 PM',note:'Returns to PGP after C&D',special:true},
+      {sl:39,time:'11:20 PM',note:'Returns to PGP after C&D',special:true},
+    ]
+  },
+  {
+    id:'campus-to-gate', icon:'🚪', label:'Campus → Gate',
+    route:['PGP Auditorium','Phase V Campus','C&D Housing','Main Gate'],
+    trips:[
+      {sl:6,time:'11:00 AM',note:''},{sl:12,time:'1:45 PM',note:''},
+      {sl:16,time:'3:00 PM',note:''},{sl:20,time:'4:15 PM',note:''},
+      {sl:24,time:'6:00 PM',note:''},{sl:28,time:'7:00 PM',note:''},
+      {sl:32,time:'8:25 PM',note:'Phase V @ 8:30 PM'},{sl:35,time:'9:50 PM',note:'Phase V @ 9:55 PM'},
+      {sl:37,time:'10:40 PM',note:'Phase V @ 10:45 PM'},{sl:40,time:'11:30 PM',note:''},
+    ]
+  },
+  {
+    id:'gate-to-campus', icon:'🏁', label:'Gate → Campus',
+    route:['Main Gate','C&D Housing','Phase V Campus','PGP Auditorium'],
+    trips:[
+      {sl:7,time:'11:45 AM',note:'Phase V @ 11:55 AM'},{sl:13,time:'2:05 PM',note:'Phase V @ 2:10 PM'},
+      {sl:17,time:'3:30 PM',note:'Phase V @ 3:40 PM'},{sl:21,time:'5:00 PM',note:'Phase V @ 5:10 PM'},
+      {sl:25,time:'6:20 PM',note:'Phase V @ 6:30 PM'},{sl:29,time:'8:00 PM',note:'C&D @ 8:05 PM'},
+      {sl:33,time:'9:00 PM',note:'Phase V @ 9:10 PM'},{sl:36,time:'10:20 PM',note:'Phase V @ 10:30 PM'},
+      {sl:38,time:'11:00 PM',note:''},{sl:41,time:'12:00 AM',note:'Midnight'},
+    ]
+  }
+];
+
+let activeBusTab = clusters[0].id;
+
+function parseBusTime(str) {
+  const [timePart, mer] = str.trim().split(' ');
+  let [h, m] = timePart.split(':').map(Number);
+  if (mer === 'PM' && h !== 12) h += 12;
+  if (mer === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
+}
+
+function buildBusTabs() {
+  document.getElementById('bus-tabs').innerHTML = clusters.map(c => `
+    <button class="tab-btn ${c.id===activeBusTab?'active':''}" onclick="switchBusTab('${c.id}')">
+      ${c.icon} ${c.label} <span class="tab-count">${c.trips.length}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('bus-content').innerHTML = clusters.map(c => `
+    <div class="tab-panel ${c.id===activeBusTab?'active':''}" id="panel-${c.id}">
+      <div class="route-strip">
+        ${c.route.map((s,i)=>`${i>0?'<span class="route-arrow">→</span>':''}<span class="stop-badge">${s}</span>`).join('')}
+      </div>
+      <div class="bus-legend">
+        <div class="bus-legend-item"><div class="bdot dot-next"></div> Next bus</div>
+        <div class="bus-legend-item"><div class="bdot dot-upcoming"></div> Upcoming</div>
+        <div class="bus-legend-item"><div class="bdot dot-past"></div> Past</div>
+      </div>
+      <table class="schedule-table">
+        <thead><tr><th>#</th><th>Departure</th><th>Stops</th><th>Note</th><th>Status</th></tr></thead>
+        <tbody id="tbody-${c.id}"></tbody>
+      </table>
+    </div>
+  `).join('');
+}
+
+function switchBusTab(id) {
+  activeBusTab = id;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn[onclick="switchBusTab('${id}')"]`).classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+  updateBusRows();
+}
+
+function updateBusRows() {
+  const now = nowMins();
+  clusters.forEach(c => {
+    const tbody = document.getElementById('tbody-'+c.id);
+    if (!tbody) return;
+    let nextIdx = -1;
+    for (let i = 0; i < c.trips.length; i++) {
+      let t = parseBusTime(c.trips[i].time);
+      if (t === 0) t = 1440;
+      if (t > now) { nextIdx = i; break; }
+    }
+    tbody.innerHTML = c.trips.map((trip, i) => {
+      let t = parseBusTime(trip.time); if(t===0) t=1440;
+      const isPast = t <= now, isNext = i === nextIdx;
+      let rowClass = 'trip-row' + (isNext?' next-trip':isPast?' past-trip':'');
+      const pill = isNext
+        ? `<span class="status-pill status-next">Next</span>`
+        : isPast ? `<span class="status-pill status-past">Done</span>`
+        : `<span class="status-pill status-upcoming">Soon</span>`;
+      return `<tr class="${rowClass}">
+        <td><span class="sl-num">${String(trip.sl).padStart(2,'0')}</span></td>
+        <td><span class="time-cell">${trip.time}</span></td>
+        <td><div class="stop-cells">${c.route.map((s,ri)=>`${ri>0?'<span class="stop-arrow">›</span>':''}<span class="stop-chip">${s}</span>`).join('')}</div></td>
+        <td><span class="${trip.special?'note-cell special':'note-cell'}">${trip.note||'—'}</span></td>
+        <td>${pill}</td>
+      </tr>`;
+    }).join('');
+  });
+  updateBusBanner();
+}
+
+function updateBusBanner() {
+  const now = nowMins();
+  const ac = clusters.find(c=>c.id===activeBusTab);
+  let best = null, bestDiff = Infinity;
+  for (const trip of ac.trips) {
+    let t = parseBusTime(trip.time); if(t===0) t=1440;
+    const d = t - now;
+    if (d > 0 && d < bestDiff) { bestDiff = d; best = trip; }
+  }
+  const banner = document.getElementById('next-banner');
+  if (!best) {
+    document.getElementById('banner-label').textContent = 'No more buses today';
+    document.getElementById('banner-trip').textContent = ac.label;
+    document.getElementById('banner-countdown').textContent = '—';
+    banner.classList.remove('urgent'); return;
+  }
+  banner.classList.toggle('urgent', bestDiff <= 5);
+  document.getElementById('banner-label').textContent = `Next Bus — ${ac.label}`;
+  document.getElementById('banner-trip').textContent = `${best.time}  ·  ${ac.route.join(' → ')}`;
+  const el = document.getElementById('banner-countdown');
+  const lbl = document.querySelector('.countdown-lbl');
+  if (bestDiff >= 60) {
+    const h=Math.floor(bestDiff/60),m=bestDiff%60;
+    el.textContent = m>0?`${h}h ${m}m`:`${h}h`; lbl.textContent='away';
+  } else { el.textContent = bestDiff; lbl.textContent='minutes away'; }
+}
+
+// ─── PAGE SWITCHING ───────────────────────────────────────────────────────────
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  if (page === 'bus') updateBusRows();
+  if (page === 'menu') renderMenuGrid();
+}
+
+// ─── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const n = new Date();
+  const h = n.getHours()%12||12, m=String(n.getMinutes()).padStart(2,'0'),
+        s=String(n.getSeconds()).padStart(2,'0'), ap=n.getHours()>=12?'PM':'AM';
+  document.getElementById('nav-clock').textContent = `${h}:${m}:${s} ${ap}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+buildMenuDayTabs();
+renderMenuGrid();
+buildBusTabs();
+updateBusRows();
+updateClock();
+
+setInterval(updateClock, 1000);
+setInterval(() => { renderMenuGrid(); updateBusRows(); }, 30000);
+</script>
+</body>
+</html>
