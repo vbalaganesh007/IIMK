@@ -369,7 +369,7 @@ body {
 ══════════════════════════════════════════════════════════════════════ -->
 <div class="page active" id="page-menu">
   <div class="menu-header">
-    <h2>🍽️ Mess Menu — June 2026</h2>
+    <h2>🍽️ Mess Menu — July 2026</h2>
     <p>Daily meal schedule with veg &amp; non-veg highlights</p>
     <div class="day-tabs" id="day-tabs"></div>
   </div>
@@ -422,174 +422,176 @@ body {
 // ─── MESS MENU DATA ───────────────────────────────────────────────────────────
 // Keys: 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat (matches JS getDay())
 const V='veg', E='egg', N='nonveg';
-const FIXED_BF = [
-  {name:'Boiled Egg', type:E},
-  {name:'Cornflakes / Chocos', type:V},
-  {name:'Boiled Pulses', type:V},
-  {name:'Bread / Butter / Jam', type:V},
-  {name:'Tea / Coffee / Milk', type:V},
-];
-const FIXED_BF_FRUIT = {
-  1:{name:'Banana',type:V}, 2:{name:'Cut Fruits (Watermelon)',type:V},
-  3:{name:'Banana',type:V}, 4:{name:'Cut Fruits (Papaya)',type:V},
-  5:{name:'Cut Fruits (Watermelon)',type:V}, 6:{name:'Banana',type:V},
-  0:{name:'Cut Fruits (Papaya)',type:V}
-};
-
+// ─── IIMK Students Mess Menu — JULY 2026 ──────────────────────────────────────
+// Keys: 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat (matches JS getDay())
 const messMenu = {
   1: { // Monday
     breakfast: [
       {name:'Idli',type:V},{name:'Medu Vada',type:V},
       {name:'Coconut Chutney',type:V},{name:'Sambhar',type:V},
-      {name:'Banana',type:V},...FIXED_BF
+      {name:'Boiled Egg',type:E},{name:'Cornflakes',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Banana',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Arhar Dal',type:V},{name:'Raw Banana Dry',type:V},
-      {name:'Moong Curry',type:V},{name:'Lemon Rice',type:V},
-      {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Egg Curry',type:E}
+      {name:'Masala Dal',type:V},{name:'Veg Fried Rice (Basmathi)',type:V},
+      {name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Gulab Jamun',type:V},{name:'Chilli Paneer',type:V},
+      {name:'Chilli Chicken',type:N},{name:'Fish Fry (extra)',type:N}
     ],
     dinner: [
-      {name:'Veg Salad',type:V},{name:'Bathura / Phulka',type:V},
-      {name:'Chole Masala',type:V},{name:'Mix Veg Poriyal',type:V},
-      {name:'Veg Biryani',type:V},{name:'Lowni Dal',type:V},
-      {name:'Curd',type:V},{name:'Pappad',type:V},
-      {name:'Ice Cream (50 ml)',type:V},{name:'Pickle',type:V},
-      {name:'Chicken',type:N}
+      {name:'Onion Cucumber Salad',type:V},{name:'Chapati',type:V},
+      {name:'Punjabi Chole',type:V},{name:'Yam Thawa Fry',type:V},
+      {name:'Plain Rice',type:V},{name:'Lowki Dal',type:V},
+      {name:'Curd',type:V},{name:'Fryums',type:V},{name:'Pickle',type:V},
+      {name:'Bengali Fish Curry',type:N},{name:'Chicken Biriyani (extra)',type:N}
     ]
   },
   2: { // Tuesday
     breakfast: [
-      {name:'Methi Paratha',type:V},{name:'Semiya Upma',type:V},
-      {name:'Veg Korma',type:V},{name:'Coconut Chutney',type:V},
-      {name:'Cut Fruits (Watermelon)',type:V},...FIXED_BF
+      {name:'Poori',type:V},{name:'Veg Upma',type:V},
+      {name:'Aloo Bajhi',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Boiled Egg',type:E},{name:'Chocos',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Cut Fruits (Papaya)',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Dal Tadka',type:V},{name:'Pumpkin Dry',type:V},
-      {name:'Veg Koftha Curry',type:V},{name:'Coconut Pulao',type:V},
+      {name:'Dal Thadka',type:V},{name:'Pumpkin Lobiya Dry',type:V},
+      {name:'Veg Hariyali',type:V},{name:'Tamarind Rice',type:V},
       {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+      {name:'Butter Milk',type:V},{name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Egg Curry',type:E},
+      {name:'Chicken Megestic (extra)',type:N},{name:'Fish Fry (extra)',type:N}
     ],
     dinner: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Mutter Masala',type:V},{name:'Aloo Kara Poriyal',type:V},
-      {name:'Corn Pulao',type:V},{name:'Tomato Pappu',type:V},
-      {name:'Cucumber Chilli Raita',type:V},{name:'Fryums',type:V},
-      {name:'Sweet',type:V},{name:'Paneer Butter Masala',type:V},
-      {name:'Chicken Curry',type:N}
+      {name:'Mix Pulses Masala',type:V},{name:'Snake Gourd Chenna Dal Dry',type:V},
+      {name:'Veg Biriyani',type:V},{name:'Tomato Pappu',type:V},
+      {name:'Boondi Raitha',type:V},{name:'Fryums',type:V},
+      {name:'Ice Cream (50 ml)',type:V},{name:'Pickle',type:V},
+      {name:'Porota Chicken Curry (extra)',type:N}
     ]
   },
   3: { // Wednesday
     breakfast: [
       {name:'Masala Dosa',type:V},{name:'Veg Wheat Upma',type:V},
       {name:'Sambar',type:V},{name:'Coriander Chutney',type:V},
-      {name:'Banana',type:V},...FIXED_BF
+      {name:'Boiled Egg',type:E},{name:'Cornflakes',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Banana',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Dal Fry',type:V},{name:'Cabbage Poriyal',type:V},
-      {name:'Chole Masala',type:V},{name:'Tamarind Rice',type:V},
+      {name:'Palak Dal',type:V},{name:'Lowki Tomater Dry',type:V},
+      {name:'Mattar Masala',type:V},{name:'Thawa Pulao',type:V},
       {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Egg Masala',type:E}
+      {name:'Butter Milk',type:V},{name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Kadai Paneer',type:V},
+      {name:'Kadai Chicken',type:N},{name:'Fish Fry (extra)',type:N}
     ],
     dinner: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Veg Makhanwala',type:V},{name:'Beetroot Dry',type:V},
-      {name:'Jeera Pulao',type:V},{name:'Dal Fry',type:V},
-      {name:'Buttermilk',type:V},{name:'Fryums',type:V},
-      {name:'Sweet',type:V},{name:'Kadai Paneer',type:V},
-      {name:'Pepper Chicken',type:N}
+      {name:'Black Chenna Aloo Masala',type:V},{name:'Beetroot Thoran',type:V},
+      {name:'Plain Rice',type:V},{name:'Dal Fry',type:V},
+      {name:'Curd',type:V},{name:'Fryums',type:V},
+      {name:'Rawa Laddu',type:V},{name:'Pickle',type:V},
+      {name:'Fish Curry (Nellore Chepala Pulusu)',type:N},{name:'Chicken Biriyani (extra)',type:N}
     ]
   },
   4: { // Thursday
     breakfast: [
-      {name:'Poori',type:V},{name:'Semiya Upma',type:V},
-      {name:'Aloo Bajhi',type:V},{name:'Coconut Chutney',type:V},
-      {name:'Cut Fruits (Papaya)',type:V},...FIXED_BF
+      {name:'Idli',type:V},{name:'Veg Poha',type:V},
+      {name:'Sambar',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Omelette',type:E},{name:'Cornflakes',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Cut Fruits (Watermelon)',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
-    lunch: [
-      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Palak Dal',type:V},{name:'Bottle Gourd Dry',type:V},
-      {name:'Mattar Masala',type:V},{name:'Thawa Pulao',type:V},
-      {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+    lunch: [ // Combo Menu
+      {name:'Veg Salad',type:V},{name:'Plain Biriyani (Basmathi)',type:V},
+      {name:'Salan',type:V},{name:'Boondi Raitha',type:V},
+      {name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Semiya Kheer',type:V},{name:'Veg Hundi',type:V},
+      {name:'Egg Masala',type:E},{name:'Chicken Roast (extra)',type:N},{name:'Fish Fry (extra)',type:N}
     ],
     dinner: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Soya Andhra Style Chilli',type:V},{name:'Thawa Veg',type:V},
-      {name:'Jeera Rice',type:V},{name:'Pappad',type:V},
-      {name:'Sweet',type:V},{name:'Rice Phirini',type:V},
-      {name:'Chilli Paneer',type:V},{name:'Chilli Chicken',type:N}
+      {name:'Veg Butter Masala',type:V},{name:'Cluster Beans Thoran',type:V},
+      {name:'Veg Fried Rice',type:V},{name:'Dal Maharani',type:V},
+      {name:'Buttermilk',type:V},{name:'Fryums',type:V},{name:'Pickle',type:V},
+      {name:'Paneer Lababdar',type:V},{name:'Pahadi Chicken',type:N}
     ]
   },
   5: { // Friday
     breakfast: [
-      {name:'Idli',type:V},{name:'Aloo Poha',type:V},
-      {name:'Sambar',type:V},{name:'Mint Chutney',type:V},
-      {name:'Cut Fruits (Watermelon)',type:V},...FIXED_BF
+      {name:'Aloo Paratha',type:V},{name:'Semiya Upma',type:V},
+      {name:'Curd',type:V},{name:'Coconut Chutney',type:V},
+      {name:'Boiled Egg',type:E},{name:'Chocos',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Cut Fruits (Papaya)',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Yellow Dal',type:V},{name:'Veg Dry',type:V},
-      {name:'Kadala Curry',type:V},{name:'Jeera Rice',type:V},
+      {name:'Dal Makkani',type:V},{name:'Aloo Karela Peanut Fry',type:V},
+      {name:'White Peas Kuruma',type:V},{name:'Curry Leaves Rice',type:V},
       {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Egg Roast',type:E}
+      {name:'Butter Milk',type:V},{name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Kerala Fish Curry',type:N},{name:'Porota Chicken Curry (extra)',type:N}
     ],
-    dinner: [
-      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Raitha',type:V},{name:'Veg Fried Rice',type:V},
-      {name:'Buttermilk',type:V},{name:'Pickle',type:V},
-      {name:'Paneer Mattar Masala',type:V},
-      {name:'Chicken Dum Biryani',type:N}
+    dinner: [ // Combo — Biryani Night
+      {name:'Onion Salad',type:V},{name:'Hyd Veg Paneer Dum Biriyani',type:V},
+      {name:'Onion Cucumber Raitha',type:V},{name:'Mirchi Ka Salan',type:V},
+      {name:'Pickle',type:V},{name:'Chicken Dum Biryani',type:N}
     ]
   },
   6: { // Saturday
     breakfast: [
-      {name:'Pesarattu',type:V},{name:'Karabath',type:V},
-      {name:'Green Chutney',type:V},{name:'Coconut Chutney',type:V},
-      {name:'Banana',type:V},...FIXED_BF
+      {name:'Uttapam',type:V},{name:'Vada Pav',type:V},
+      {name:'Mint Chutney',type:V},{name:'Onion Tomato Chutney',type:V},
+      {name:'Boiled Egg',type:E},{name:'Chocos',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Banana',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Dal Makhani',type:V},{name:'Soya Capsicum Dry',type:V},
-      {name:'Veg Chettinadu',type:V},{name:'Tomato Rice',type:V},
-      {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Fish Curry',type:N}
+      {name:'Yellow Dal',type:V},{name:'Cabbage Foogath',type:V},
+      {name:'Chole Masala',type:V},{name:'Basandi Pulao',type:V},
+      {name:'Rice',type:V},{name:'Rasam',type:V},
+      {name:'Plain Curd',type:V},{name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Sweet Boondi',type:V},
+      {name:'Egg Kolhapuri',type:E},{name:'Chicken Biriyani (extra)',type:N}
     ],
     dinner: [
-      {name:'Combo Menu',type:V},{name:'Paneer Mattar Masala',type:V},
-      {name:'Mishti Pulao',type:V},{name:'Moong Dal Tadka',type:V},
-      {name:'Plain Chapati',type:V},{name:'Pryums',type:V},{name:'Pickle',type:V}
+      {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
+      {name:'Paneer Makkan Masala',type:V},{name:'Kadai Veg',type:V},
+      {name:'Kushka',type:V},{name:'Moong Dal Thadka',type:V},
+      {name:'Buttermilk',type:V},{name:'Fryums',type:V},{name:'Pickle',type:V},
+      {name:'Chicken Masala (extra)',type:N}
     ]
   },
   0: { // Sunday
     breakfast: [
-      {name:'PAV',type:V},{name:'Veg Uthapam',type:V},
-      {name:'Bajhi',type:V},{name:'Coconut Red Chutney',type:V},
-      {name:'Cut Fruits (Papaya)',type:V},...FIXED_BF
+      {name:'Pav',type:V},{name:'Kal Dosa',type:V},
+      {name:'Bhaaji',type:V},{name:'Coconut Red Chutney',type:V},
+      {name:'Boiled Egg',type:E},{name:'Cornflakes',type:V},
+      {name:'Boiled Pulses',type:V},{name:'Cut Fruits (Watermelon)',type:V},
+      {name:'Bread / Butter / Jam',type:V},{name:'Tea / Coffee / Milk',type:V}
     ],
     lunch: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Bengal Gram Dal Fry',type:V},{name:'Aloo Bhindi Dry',type:V},
-      {name:'Rajma Raseela',type:V},{name:'Vangi Bhat',type:V},
-      {name:'Rice',type:V},{name:'Sambar',type:V},
-      {name:'Butter Milk',type:V},{name:'Pappad / Fryums',type:V},
-      {name:'Pickle',type:V},{name:'Egg Curry',type:E}
+      {name:'Bengal Gram Dal Fry',type:V},{name:'Aloo Amritsari',type:V},
+      {name:'Rajma Raseela',type:V},{name:'Ghee Rice (Pulao)',type:V},
+      {name:'Rice',type:V},{name:'Rasam',type:V},
+      {name:'Jeera Buttermilk',type:V},{name:'Pappad',type:V},{name:'Pickle',type:V},
+      {name:'Paneer Butter Masala',type:V},{name:'Butter Chicken',type:N}
     ],
     dinner: [
       {name:'Veg Salad',type:V},{name:'Chapati / Phulka',type:V},
-      {name:'Lobiya Masala',type:V},{name:'Aloo Gobi Kashmiri Dry',type:V},
-      {name:'Veg Pulao',type:V},{name:'Dal Maharani',type:V},
-      {name:'Buttermilk',type:V},{name:'Pryums',type:V},{name:'Pickle',type:V},
-      {name:'Chicken Roast',type:N}
+      {name:'Veg Kolhapuri',type:V},{name:'Tendly Peanut Fry',type:V},
+      {name:'Veg Dal Kichadi',type:V},{name:'Buttermilk',type:V},
+      {name:'Fryums',type:V},{name:'Badushai',type:V},{name:'Pickle',type:V},
+      {name:'Egg Curry',type:E},{name:'Chicken Biriyani (extra)',type:N}
     ]
   }
 };
