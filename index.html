@@ -861,4 +861,131 @@ function updateBusBanner() {
   }
   banner.classList.toggle('urgent', bestDiff <= 5);
   document.getElementById('banner-label').textContent = `Next Bus — ${ac.label}`;
-  document.getElem
+  document.getElementById('banner-trip').textContent = `${best.time}  ·  ${ac.route.join(' → ')}`;
+  const el = document.getElementById('banner-countdown');
+  const lbl = document.querySelector('.countdown-lbl');
+  if (bestDiff >= 60) {
+    const h=Math.floor(bestDiff/60),m=bestDiff%60;
+    el.textContent = m>0?`${h}h ${m}m`:`${h}h`; lbl.textContent='away';
+  } else { el.textContent = bestDiff; lbl.textContent='minutes away'; }
+}
+
+// ─── EXAM SCHEDULE DATA ───
+const examTerms = [
+  {
+    id:'term1', label:'Term I',
+    exams:[
+      {subject:'Managing People & Performance in Orgs', cat:'quiz', type:'Quiz 1', mode:'Closed book', date:'04 May 2026', time:'10:00 AM'},
+      {subject:'Essentials of Financial Accounting & Costing', cat:'quiz', type:'Quiz 1', mode:'Closed book', date:'05 May 2026', time:'10:00 AM'},
+      {subject:'Organisation & Market Economics', cat:'quiz', type:'Quiz 1', mode:'Closed book', date:'07 May 2026', time:'02:55 – 03:10 PM'},
+      {subject:'Data Analysis & Modeling', cat:'quiz', type:'Quiz 1', mode:'Open book', date:'07 May 2026', time:'Afternoon'},
+      {subject:'Marketing Management', cat:'quiz', type:'Quiz 1', mode:'Closed book', date:'14 May 2026', time:'02:30 – 03:00 PM'},
+      {subject:'Organisation & Market Economics', cat:'quiz', type:'Quiz 2', mode:'Closed book', date:'21 May 2026', time:'02:30 – 02:45 PM'},
+      {subject:'Managing People & Performance in Orgs', cat:'quiz', type:'Quiz 2', mode:'Closed book', date:'21 May 2026', time:'02:50 PM'},
+      {subject:'Essentials of Financial Accounting & Costing', cat:'quiz', type:'Quiz 2', mode:'Closed book', date:'21 May 2026', time:'03:25 PM'},
+      {subject:'Data Analysis & Modeling', cat:'quiz', type:'Quiz 2', mode:'Open book · moved from 23 May', date:'25 May 2026', time:'Afternoon'},
+      {subject:'Marketing Management', cat:'quiz', type:'Quiz 2', mode:'Moved from 23 May', date:'25 May 2026', time:'Afternoon'},
+      {subject:'Marketing Management', cat:'quiz', type:'Quiz 3', mode:'Sunday · time revised', date:'31 May 2026', time:'Revised'},
+      {subject:'Organisation & Market Economics', cat:'quiz', type:'Quiz 3', mode:'Closed book', date:'04 Jun 2026', time:'02:20 – 02:35 PM'},
+      {subject:'Data Analysis & Modeling', cat:'quiz', type:'Quiz 3', mode:'With End-Term (moved from 04 Jun)', date:'05 Jun 2026', time:'With End-Term'},
+      {subject:'Managing People & Performance in Orgs', cat:'quiz', type:'Quiz 3', mode:'Closed book', date:'06 Jun 2026', time:'Afternoon'},
+      {subject:'Marketing Management', cat:'quiz', type:'Quiz 4', mode:'With End-Term (moved from 04 Jun)', date:'08 Jun 2026', time:'With End-Term'},
+      {subject:'Data Analysis & Modeling', cat:'end', type:'End-Term', mode:'Open book', date:'05 Jun 2026', time:'—'},
+      {subject:'Organisation & Market Economics', cat:'end', type:'End-Term', mode:'Closed book', date:'06 Jun 2026', time:'—'},
+      {subject:'Marketing Management', cat:'end', type:'End-Term', mode:'Open book', date:'08 Jun 2026', time:'—'},
+      {subject:'Communication for Transformation-1', cat:'end', type:'End-Term', mode:'Closed book', date:'08 Jun 2026', time:'—'},
+      {subject:'Essentials of Financial Accounting, Analysis & Costing', cat:'end', type:'End-Term', mode:'Closed book', date:'09 Jun 2026', time:'—'},
+    ]
+  },
+  {
+    id:'term2', label:'Term II',
+    exams:[
+      {subject:'Corporate Finance', cat:'quiz', type:'Quiz 1', mode:'Closed book', date:'18 Jun 2026', time:'02:30 – 02:55 PM'},
+      {subject:'Operations & Supply Chain Mgmt', cat:'quiz', type:'Quiz 1', mode:'Closed book · 12 min', date:'25 Jun 2026', time:'02:30 PM'},
+      {subject:'Operations & Supply Chain Mgmt', cat:'quiz', type:'Quiz 2', mode:'Closed book', date:'02 Jul 2026', time:'02:55 – 03:10 PM'},
+      {subject:'Corporate Finance', cat:'quiz', type:'Quiz 2', mode:'Closed book · moved from 02 Jul', date:'09 Jul 2026', time:'02:30 – 02:50 PM'},
+      {subject:'Operations & Supply Chain Mgmt', cat:'quiz', type:'Quiz 3', mode:'Closed book', date:'09 Jul 2026', time:'02:55 PM'},
+      {subject:'Macroeconomics: Policies, Institutions & Markets', cat:'quiz', type:'Quiz 1', mode:'Closed book · 15 min', date:'09 Jul 2026', time:'Afternoon'},
+      {subject:'Corporate Finance', cat:'end', type:'End-Term', mode:'Forenoon session', date:'30 Jul 2026', time:'Forenoon'},
+      {subject:'Operations & Supply Chain Management', cat:'end', type:'End-Term', mode:'Forenoon session', date:'31 Jul 2026', time:'Forenoon'},
+      {subject:'Business Public Policy & Law', cat:'end', type:'End-Term', mode:'Afternoon session', date:'31 Jul 2026', time:'Afternoon'},
+      {subject:'Macroeconomics: Policies, Institutions & Markets', cat:'end', type:'End-Term', mode:'Forenoon session', date:'01 Aug 2026', time:'Forenoon'},
+    ],
+    note:'End-Term start times will be communicated in due course. Report 5 min before; no entry after reporting time. Carry your Institute ID card. (Source: PGP BL 07 TERM II ET SCHEDULE.pdf)'
+  }
+];
+
+let activeExamTab = 'term2';
+const EXAM_MONTHS = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function parseExamDate(dstr){ const [d,mon,y]=dstr.split(' '); return new Date(Number(y), EXAM_MONTHS[mon], Number(d)); }
+
+function buildExamTabs(){
+  const el=document.getElementById('exam-tabs'); if(!el) return;
+  el.innerHTML = examTerms.map(t=>`
+    <button class="tab-btn ${t.id===activeExamTab?'active':''}" onclick="switchExamTab('${t.id}')">
+      ${t.label} <span class="tab-count">${t.exams.length}</span>
+    </button>`).join('');
+}
+function switchExamTab(id){ activeExamTab=id; buildExamTabs(); renderExam(); }
+
+function renderExam(){
+  const term=examTerms.find(t=>t.id===activeExamTab); if(!term) return;
+  const host=document.getElementById('exam-content'); if(!host) return;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exams=[...term.exams].sort((a,b)=>parseExamDate(a.date)-parseExamDate(b.date));
+  let nextIdx=exams.findIndex(e=>parseExamDate(e.date)>=today);
+  const rows=exams.map((e,i)=>{
+    const isNext=i===nextIdx;
+    const past=parseExamDate(e.date)<today;
+    const pill = e.cat==='end'
+      ? `<span class="type-pill type-endterm">${e.type}</span>`
+      : `<span class="type-pill type-quiz">${e.type}</span>`;
+    const cls='trip-row'+(isNext?' next-trip':past?' past-trip':'');
+    return `<tr class="${cls}">
+      <td><span class="subj-cell">${e.subject}</span>${e.mode?`<span class="exam-mode">${e.mode}</span>`:''}</td>
+      <td>${pill}</td>
+      <td><span class="date-cell">${e.date}</span></td>
+      <td><span class="time-cell">${e.time}</span></td>
+    </tr>`;
+  }).join('');
+  host.innerHTML = `
+    ${term.note?`<div class="exam-note"><b>Note:</b> ${term.note}</div>`:''}
+    <table class="schedule-table">
+      <thead><tr><th>Subject</th><th>Type</th><th>Date</th><th>Time</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ─── PAGE SWITCHING ───
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  if (page === 'bus') updateBusRows();
+  if (page === 'menu') renderMenuGrid();
+  if (page === 'exam') { buildExamTabs(); renderExam(); }
+}
+
+// ─── CLOCK ───
+function updateClock() {
+  const n = new Date();
+  const h = n.getHours()%12||12, m=String(n.getMinutes()).padStart(2,'0'),
+        s=String(n.getSeconds()).padStart(2,'0'), ap=n.getHours()>=12?'PM':'AM';
+  document.getElementById('nav-clock').textContent = `${h}:${m}:${s} ${ap}`;
+}
+
+// ─── INIT ───
+buildMenuDayTabs();
+renderMenuGrid();
+buildBusTabs();
+updateBusRows();
+buildExamTabs();
+renderExam();
+updateClock();
+
+setInterval(updateClock, 1000);
+setInterval(() => { renderMenuGrid(); updateBusRows(); renderExam(); }, 30000);
+</script>
+</body>
+</html>
