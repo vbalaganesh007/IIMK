@@ -345,8 +345,23 @@ body {
 .status-next { background: #1d4ed8; color: #fff; animation: blink 1.5s infinite; }
 .status-past { background: #1e293b; color: #475569; }
 
+/* Exam schedule */
+.exam-header { padding: 20px 28px 8px; }
+.exam-header h2 { font-size: 1.5rem; font-weight: 800; }
+.exam-header p { color: #64748b; font-size: 0.85rem; margin-top: 2px; }
+.exam-content { padding: 4px 28px 40px; }
+.subj-cell { font-size: 0.95rem; font-weight: 600; color: #f1f5f9; }
+.exam-mode { display: block; font-size: 0.68rem; color: #64748b; font-style: italic; margin-top: 2px; }
+.type-pill { display: inline-block; font-size: 0.62rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.type-quiz { background: #1e3a5f; color: #60a5fa; }
+.type-endterm { background: #4a2f1a; color: #fbbf24; }
+.exam-note { background: #1e293b; border-left: 3px solid #fbbf24; border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-size: 0.82rem; color: #cbd5e1; }
+.exam-note b { color: #fbbf24; }
+.date-cell { font-size: 0.9rem; font-weight: 700; color: #e2e8f0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 @media (max-width: 600px) {
   .topnav { padding: 0 14px; }
+  .exam-header, .exam-content { padding-left: 14px; padding-right: 14px; }
   .meal-grid, .bus-content, .tabs-container, #next-banner, .menu-legend, #meal-banner { padding-left: 14px; padding-right: 14px; }
   .menu-header, .bus-header { padding-left: 14px; padding-right: 14px; }
 }
@@ -359,6 +374,7 @@ body {
   <div class="nav-logo">IIM<span>K</span></div>
   <button class="nav-btn active" id="nav-menu" onclick="switchPage('menu')">🍽️ Mess Menu</button>
   <button class="nav-btn" id="nav-bus" onclick="switchPage('bus')">🚌 Bus Timings</button>
+  <button class="nav-btn" id="nav-exam" onclick="switchPage('exam')">📝 Exam Schedule</button>
   <div class="nav-right">
     <div class="clock-chip" id="nav-clock">--:-- --</div>
   </div>
@@ -413,6 +429,20 @@ body {
     <div class="tabs" id="bus-tabs"></div>
   </div>
   <div class="bus-content" id="bus-content"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     EXAM SCHEDULE PAGE
+══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-exam">
+  <div class="exam-header">
+    <h2>📝 Exam Schedule</h2>
+    <p>PGP BL 07 · Quizzes &amp; End-Term exams · source: exams@iimk.ac.in</p>
+  </div>
+  <div class="tabs-container">
+    <div class="tabs" id="exam-tabs"></div>
+  </div>
+  <div class="exam-content" id="exam-content"></div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════
@@ -831,40 +861,4 @@ function updateBusBanner() {
   }
   banner.classList.toggle('urgent', bestDiff <= 5);
   document.getElementById('banner-label').textContent = `Next Bus — ${ac.label}`;
-  document.getElementById('banner-trip').textContent = `${best.time}  ·  ${ac.route.join(' → ')}`;
-  const el = document.getElementById('banner-countdown');
-  const lbl = document.querySelector('.countdown-lbl');
-  if (bestDiff >= 60) {
-    const h=Math.floor(bestDiff/60),m=bestDiff%60;
-    el.textContent = m>0?`${h}h ${m}m`:`${h}h`; lbl.textContent='away';
-  } else { el.textContent = bestDiff; lbl.textContent='minutes away'; }
-}
-
-// ─── PAGE SWITCHING ───────────────────────────────────────────────────────────
-function switchPage(page) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.getElementById('nav-'+page).classList.add('active');
-  if (page === 'bus') updateBusRows();
-  if (page === 'menu') renderMenuGrid();
-}
-
-// ─── CLOCK ────────────────────────────────────────────────────────────────────
-function updateClock() {
-  const n = new Date();
-  const h = n.getHours()%12||12, m=String(n.getMinutes()).padStart(2,'0'),
-        s=String(n.getSeconds()).padStart(2,'0'), ap=n.getHours()>=12?'PM':'AM';
-  document.getElementById('nav-clock').textContent = `${h}:${m}:${s} ${ap}`;
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-buildMenuDayTabs();
-renderMenuGrid();
-buildBusTabs();
-updateBusRows();
-updateClock();
-
-setInterval(updateClock, 1000);
-setInterval(() => { renderMenuGrid(); updateBusRows(); }, 30000);
-</script>
+  document.getElem
