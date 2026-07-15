@@ -973,4 +973,22 @@ function switchPage(page) {
 // ─── CLOCK ───
 function updateClock() {
   const n = new Date();
-  const h = n.getHours()%12||12, m=String(n.getMinute
+  const h = n.getHours()%12||12, m=String(n.getMinutes()).padStart(2,'0'),
+        s=String(n.getSeconds()).padStart(2,'0'), ap=n.getHours()>=12?'PM':'AM';
+  document.getElementById('nav-clock').textContent = `${h}:${m}:${s} ${ap}`;
+}
+
+// ─── INIT ───
+buildMenuDayTabs();
+renderMenuGrid();
+buildBusTabs();
+updateBusRows();
+buildExamTabs();
+renderExam();
+updateClock();
+
+setInterval(updateClock, 1000);
+setInterval(() => { renderMenuGrid(); updateBusRows(); renderExam(); }, 30000);
+</script>
+</body>
+</html>
