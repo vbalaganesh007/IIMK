@@ -906,6 +906,9 @@ const examTerms = [
       {subject:'Corporate Finance', cat:'quiz', type:'Quiz 2', mode:'Closed book · moved from 02 Jul', date:'09 Jul 2026', time:'02:30 – 02:50 PM'},
       {subject:'Operations & Supply Chain Mgmt', cat:'quiz', type:'Quiz 3', mode:'Closed book', date:'09 Jul 2026', time:'02:55 PM'},
       {subject:'Macroeconomics: Policies, Institutions & Markets', cat:'quiz', type:'Quiz 1', mode:'Closed book · 15 min', date:'09 Jul 2026', time:'Afternoon'},
+      {subject:'Corporate Finance', cat:'quiz', type:'Quiz 3', mode:'Closed book · 20 min', date:'16 Jul 2026', time:'02:30 – 02:50 PM'},
+      {subject:'Operations & Supply Chain Mgmt', cat:'quiz', type:'Quiz 4', mode:'Closed book · 15 min', date:'16 Jul 2026', time:'03:00 – 03:15 PM'},
+      {subject:'Macroeconomics: Policies, Institutions & Markets', cat:'quiz', type:'Quiz 2', mode:'Closed book · 15 min', date:'16 Jul 2026', time:'03:20 – 03:35 PM'},
       {subject:'Corporate Finance', cat:'end', type:'End-Term', mode:'Forenoon session', date:'30 Jul 2026', time:'Forenoon'},
       {subject:'Operations & Supply Chain Management', cat:'end', type:'End-Term', mode:'Forenoon session', date:'31 Jul 2026', time:'Forenoon'},
       {subject:'Business Public Policy & Law', cat:'end', type:'End-Term', mode:'Afternoon session', date:'31 Jul 2026', time:'Afternoon'},
@@ -970,22 +973,4 @@ function switchPage(page) {
 // ─── CLOCK ───
 function updateClock() {
   const n = new Date();
-  const h = n.getHours()%12||12, m=String(n.getMinutes()).padStart(2,'0'),
-        s=String(n.getSeconds()).padStart(2,'0'), ap=n.getHours()>=12?'PM':'AM';
-  document.getElementById('nav-clock').textContent = `${h}:${m}:${s} ${ap}`;
-}
-
-// ─── INIT ───
-buildMenuDayTabs();
-renderMenuGrid();
-buildBusTabs();
-updateBusRows();
-buildExamTabs();
-renderExam();
-updateClock();
-
-setInterval(updateClock, 1000);
-setInterval(() => { renderMenuGrid(); updateBusRows(); renderExam(); }, 30000);
-</script>
-</body>
-</html>
+  const h = n.getHours()%12||12, m=String(n.getMinute
