@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AD–AS Interactive Simulator | Economic Fluctuations &amp; Macroeconomic Policy</title>
+<style>
+/* ============================================================================
+   AD–AS MACROECONOMIC SIMULATOR — STYLESHEET
+   Design language: professional MBA textbook.
+   White ground, restrained palette, one accent per curve.
+     Blue  #1f4ed8 = Aggregate Demand (AD)
+     Red   #c0271f = Short-Run Aggregate Supply (SRAS)
+     Green #14804a = Long-Run Aggregate Supply (LRAS)
+   ========================================================================== */
+
+:root{
+  --ad:#1f4ed8;  --ad-soft:#e8eeff;
+  --sras:#c0271f; --sras-soft:#fdeceb;
+  --lras:#14804a; --lras-soft:#e7f5ee;
+  --ink:#12161f;  --ink-2:#41495a; --ink-3:#6b7488;
+  --line:#e2e6ee; --line-2:#f0f2f7;
+  --bg:#ffffff;   --bg-2:#f8f9fc;
+  --warn:#d97706; --warn-soft:#fef3c7;
+  --danger:#c0271f;
+  --radius:10px;
+  --mono:"SF Mono",ui-monospace,"Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --sans:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--bg);
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;font-weight:650;letter-spacing:-0.01em}
+button{font-family:inherit}
+
+/* ---------- Masthead ---------------------------------------------------- */
+.masthead{
+  border-bottom:1px solid var(--line);
+  padding:14px 22px;
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  background:var(--bg);
+  position:sticky;top:0;z-index:40;
+}
+.masthead h1{font-size:17px}
+.masthead .sub{color:var(--ink-3);font-size:12.5px}
+.masthead .spacer{flex:1}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend .ad{background:var(--ad)} .legend .sras{background:var(--sras)} .legend .lras{background:var(--lras)}
+
+/* ---------- Master grid ------------------------------------------------- */
+.shell{
+  display:grid;
+  grid-template-columns:186px minmax(250px,300px) minmax(420px,1fr) minmax(280px,340px);
+  grid-template-areas:"nav left center right" "dash dash dash dash";
+  gap:0;
+  align-items:stretch;
+}
+#nav    {grid-area:nav;    border-right:1px solid var(--line)}
+#left   {grid-area:left;   border-right:1px solid var(--line)}
+#center {grid-area:center}
+#right  {grid-area:right;  border-left:1px solid var(--line)}
+#dash   {grid-area:dash;   border-top:1px solid var(--line);background:var(--bg-2)}
+
+.panel{padding:16px 16px 26px;min-width:0}
+.panel-title{
+  font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:700;margin-bottom:10px;
+}
+.panel-scroll{max-height:calc(100vh - 130px);overflow-y:auto;overscroll-behavior:contain}
+.panel-scroll::-webkit-scrollbar{width:8px}
+.panel-scroll::-webkit-scrollbar-thumb{background:#d6dae4;border-radius:4px}
+
+/* ---------- Slide navigation -------------------------------------------- */
+.slide-btn{
+  display:block;width:100%;text-align:left;border:1px solid transparent;background:none;
+  padding:7px 9px;border-radius:8px;cursor:pointer;color:var(--ink-2);font-size:12.5px;
+  margin-bottom:2px;transition:background .15s,color .15s;
+}
+.slide-btn:hover{background:var(--bg-2);color:var(--ink)}
+.slide-btn.active{background:var(--ad-soft);color:var(--ad);border-color:#c9d6ff;font-weight:600}
+.slide-btn b{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.slide-btn.active b{color:var(--ad)}
+
+/* ---------- Controls ----------------------------------------------------- */
+.group{margin-bottom:16px}
+.group-h{
+  font-size:11px;font-weight:700;color:var(--ink);margin:0 0 8px;
+  padding-bottom:5px;border-bottom:1px solid var(--line-2);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.group-h span{font-weight:500;font-size:10px;color:var(--ink-3);letter-spacing:.06em}
+.ctl{margin-bottom:11px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px}
+.ctl-name{font-size:12px;color:var(--ink-2)}
+.ctl-val{font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--bg-2);
+  padding:1px 6px;border-radius:5px;border:1px solid var(--line)}
+.ctl-tag{font-size:9.5px;letter-spacing:.05em;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:4px}
+.tag-ad{background:var(--ad-soft);color:var(--ad)}
+.tag-sras{background:var(--sras-soft);color:var(--sras)}
+.tag-lras{background:var(--lras-soft);color:var(--lras)}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:var(--line)}
+input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;
+  border:2px solid var(--ink-2);margin-top:-5px;transition:border-color .15s, transform .1s;
+}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--ink-2)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range].s-ad::-webkit-slider-thumb{border-color:var(--ad)}
+input[type=range].s-ad::-moz-range-thumb{border-color:var(--ad)}
+input[type=range].s-sras::-webkit-slider-thumb{border-color:var(--sras)}
+input[type=range].s-sras::-moz-range-thumb{border-color:var(--sras)}
+input[type=range].s-lras::-webkit-slider-thumb{border-color:var(--lras)}
+input[type=range].s-lras::-moz-range-thumb{border-color:var(--lras)}
+input[type=range].s-both::-webkit-slider-thumb{border-color:#7a5cc4}
+input[type=range].s-both::-moz-range-thumb{border-color:#7a5cc4}
+.tag-both{background:#f0ecfb;color:#6d4fc0}
+
+/* ---------- Buttons ------------------------------------------------------ */
+.btn{
+  border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  padding:7px 10px;border-radius:8px;font-size:11.5px;cursor:pointer;
+  transition:border-color .15s,background .15s,color .15s;text-align:left;
+}
+.btn:hover{border-color:#b9c1d3;background:var(--bg-2);color:var(--ink)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600;text-align:center}
+.btn.primary:hover{background:#2b3345;color:#fff}
+.btn.ghost{text-align:center}
+.scenarios{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.scenarios .btn{line-height:1.3}
+.rowbtns{display:flex;gap:6px;margin-top:8px}
+.rowbtns .btn{flex:1}
+
+/* ---------- Graph -------------------------------------------------------- */
+.graph-wrap{width:100%}
+svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.grid-line{stroke:var(--line-2);stroke-width:1}
+.axis{stroke:var(--ink);stroke-width:1.4}
+.axis-label{font-size:12px;font-weight:650;fill:var(--ink)}
+.tick-label{font-size:9.5px;fill:var(--ink-3);font-family:var(--mono)}
+.curve{fill:none;stroke-width:2.6;stroke-linecap:round}
+.curve.ad{stroke:var(--ad)} .curve.sras{stroke:var(--sras)} .curve.lras{stroke:var(--lras);stroke-width:2.4}
+.curve-hit{fill:none;stroke:transparent;stroke-width:22;cursor:ew-resize}
+.curve-label{font-size:12.5px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.curve-label.ad{fill:var(--ad)} .curve-label.sras{fill:var(--sras)} .curve-label.lras{fill:var(--lras)}
+.ghost-curve{fill:none;stroke-width:1.6;stroke-dasharray:4 4;opacity:.35}
+.proj{stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:5 4}
+.eq-dot{fill:#fff;stroke:var(--ink);stroke-width:2.4}
+.eq-halo{fill:var(--ink);opacity:.10}
+.readout{font-size:10.5px;font-family:var(--mono);fill:var(--ink)}
+.readout-box{fill:#fff;stroke:var(--line);rx:5}
+.gap-fill.rec{fill:var(--warn);opacity:.16}
+.gap-fill.inf{fill:var(--danger);opacity:.14}
+.gap-tag{font-size:10.5px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3.5px}
+.gap-tag.rec{fill:#b45309} .gap-tag.inf{fill:var(--danger)}
+.hint{font-size:11px;color:var(--ink-3);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
+.hint b{color:var(--ink-2);font-weight:600}
+
+/* ---------- Right panel / explanation ------------------------------------ */
+.callout{
+  border:1px solid var(--line);border-radius:var(--radius);padding:12px 13px;margin-bottom:12px;background:#fff;
+}
+.callout h4{font-size:13px;margin-bottom:6px}
+.callout p{margin:0 0 8px;color:var(--ink-2);font-size:12.5px}
+.callout p:last-child{margin-bottom:0}
+.state-badge{
+  display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:.03em;margin-bottom:8px;
+}
+.b-neutral{background:var(--bg-2);color:var(--ink-2);border:1px solid var(--line)}
+.b-rec{background:var(--warn-soft);color:#92400e}
+.b-inf{background:var(--sras-soft);color:var(--sras)}
+.b-stag{background:#ede9fe;color:#5b21b6}
+.b-growth{background:var(--lras-soft);color:var(--lras)}
+
+/* Story chain */
+.chain{list-style:none;margin:0;padding:0}
+.chain li{
+  position:relative;padding:0 0 14px 20px;font-size:12.5px;color:var(--ink-2);
+  border-left:1.5px solid var(--line);margin-left:5px;
+}
+.chain li:last-child{border-left-color:transparent;padding-bottom:0}
+.chain li::before{
+  content:"";position:absolute;left:-5.5px;top:6px;width:9px;height:9px;border-radius:50%;
+  background:#fff;border:2px solid var(--ink-3);
+}
+.chain li.hi::before{border-color:var(--ad);background:var(--ad)}
+.chain li.hi{color:var(--ink);font-weight:600}
+.chain li.term::before{border-color:var(--sras);background:var(--sras)}
+.chain-enter{animation:fadeUp .32s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ---------- Dashboard ---------------------------------------------------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+}
+.metric{background:#fff;padding:10px 12px}
+.metric .k{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.metric .v{font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+.metric .d{font-size:10.5px;color:var(--ink-3);margin-top:1px}
+.metric .v.up{color:var(--lras)} .metric .v.down{color:var(--sras)}
+.dash-cols{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+
+/* ---------- Quiz / modal-ish ------------------------------------------- */
+.quiz-opt{
+  display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;
+  padding:8px 10px;border-radius:8px;font-size:12.5px;margin-bottom:6px;cursor:pointer;color:var(--ink-2);
+}
+.quiz-opt:hover{border-color:#b9c1d3;background:var(--bg-2)}
+.quiz-opt.correct{border-color:var(--lras);background:var(--lras-soft);color:var(--lras);font-weight:600}
+.quiz-opt.wrong{border-color:var(--sras);background:var(--sras-soft);color:var(--sras)}
+.quiz-score{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* ---------- Business cycle ---------------------------------------------- */
+.cycle-stage{font-size:11px;color:var(--ink-3);margin-top:4px}
+.cycle-stage b{color:var(--ink)}
+
+/* ---------- Responsive --------------------------------------------------- */
+@media (max-width:1200px){
+  .shell{
+    grid-template-columns:170px 1fr 1fr;
+    grid-template-areas:"nav center center" "nav left right" "dash dash dash";
+  }
+  .panel-scroll{max-height:none}
+  #left{border-right:1px solid var(--line)} #right{border-left:none}
+  .dash-cols{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr;grid-template-areas:"nav" "center" "left" "right" "dash"}
+  #nav,#left,#right{border:none;border-bottom:1px solid var(--line)}
+  #nav .panel-scroll{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:4px}
+  .masthead{position:static}
+  .metric .v{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>Economic Fluctuations &amp; Macroeconomic Policy</h1>
+  <div class="sub">Interactive AD–AS Simulator</div>
+  <div class="spacer"></div>
+  <div class="legend">
+    <span><i class="ad"></i>Aggregate Demand</span>
+    <span><i class="sras"></i>Short-Run Aggregate Supply</span>
+    <span><i class="lras"></i>Long-Run Aggregate Supply</span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ================= SLIDE NAVIGATION ================= -->
+  <nav id="nav" class="panel">
+    <div class="panel-title">Lecture Slides</div>
+    <div class="panel-scroll" id="slideList"></div>
+    <div class="rowbtns" style="margin-top:12px">
+      <button class="btn ghost" id="btnReset">Reset all</button>
+    </div>
+  </nav>
+
+  <!-- ================= LEFT: CONTROLS ================= -->
+  <section id="left" class="panel">
+    <div class="panel-title">Economic Controls</div>
+    <div class="panel-scroll">
+      <div id="controls"></div>
+
+      <div class="group">
+        <div class="group-h">Scenarios <span>one click</span></div>
+        <div class="scenarios" id="scenarios"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CENTER: GRAPH ================= -->
+  <section id="center" class="panel">
+    <div class="panel-title">AD–AS Model <span style="text-transform:none;letter-spacing:0;font-weight:500">— drag any curve left or right</span></div>
+    <div class="graph-wrap">
+      <svg id="chart" viewBox="0 0 660 470" role="img" aria-label="Aggregate demand and aggregate supply diagram"></svg>
+    </div>
+    <div class="hint">
+      <span><b>Drag AD / SRAS / LRAS</b> horizontally</span>
+      <span><b>Click a curve</b> for the economics behind its slope</span>
+    </div>
+
+    <div class="callout" style="margin-top:14px">
+      <div class="panel-title" style="margin-bottom:6px">Business Cycle Position</div>
+      <svg id="cycle" viewBox="0 0 660 170" role="img" aria-label="Business cycle position"></svg>
+      <div class="cycle-stage" id="cycleStage"></div>
+    </div>
+  </section>
+
+  <!-- ================= RIGHT: EXPLANATION ================= -->
+  <aside id="right" class="panel">
+    <div class="panel-title">Economic Explanation</div>
+    <div class="panel-scroll">
+      <div class="callout" id="diagnosis"></div>
+
+      <div class="callout">
+        <h4>Story Mode — the causal chain</h4>
+        <ol class="chain" id="story"></ol>
+      </div>
+
+      <div class="callout" id="curveEdu">
+        <h4>Educational Mode</h4>
+        <p>Click <b>AD</b>, <b>SRAS</b> or <b>LRAS</b> on the diagram to see why each curve is shaped the way it is.</p>
+      </div>
+
+      <div class="callout" id="quizBox">
+        <h4 style="display:flex;justify-content:space-between;align-items:center">
+          Quiz Mode <span class="quiz-score" id="quizScore">0 / 0</span>
+        </h4>
+        <p id="quizQ" style="color:var(--ink);font-weight:550"></p>
+        <div id="quizOpts"></div>
+        <p id="quizFeedback" style="margin-top:8px"></p>
+        <div class="rowbtns"><button class="btn primary" id="btnQuiz">New question</button></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= BOTTOM: DASHBOARD ================= -->
+  <section id="dash" class="panel">
+    <div class="panel-title">Macroeconomic Dashboard <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink-3)">— index values, illustrative</span></div>
+    <div class="metrics" id="metrics"></div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================================
+ * AD–AS MACROECONOMIC SIMULATOR
+ * ----------------------------------------------------------------------------
+ * Architecture (each section is independent and separately extensible):
+ *
+ *   1. CONFIG          — tunable constants, palettes, plot geometry
+ *   2. MODEL           — pure economics: curve equations, shift mapping,
+ *                        equilibrium solver, national-accounts derivations
+ *   3. STATE           — single source of truth + animation targets
+ *   4. GEOMETRY        — economic-space <-> pixel-space, Catmull-Rom → Bezier
+ *   5. RENDER          — SVG painting (main chart + business-cycle chart)
+ *   6. INTERACTION     — sliders, curve dragging, clicks
+ *   7. ANIMATION       — 500 ms eased tweens + animated dashboard counters
+ *   8. NARRATIVE       — story mode, diagnosis text, curve pedagogy
+ *   9. SCENARIOS       — one-click macro shocks
+ *  10. SLIDES          — 12 lecture presets
+ *  11. QUIZ            — random prediction questions
+ *  12. BOOT            — wiring
+ *
+ * To extend: add a slider to CONFIG.controls (give it weights on ad/sras/lras),
+ * add a scenario to SCENARIOS, or add a slide to SLIDES. Nothing else changes.
+ * ========================================================================== */
+/* ==========================================================================
+ * 1. CONFIG
+ * ======================================================================== */
+const CONFIG = {
+  /* Economic axis ranges (index numbers, base year = 100) */
+  gdpMin: 20, gdpMax: 180,
+  priceMin: 40, priceMax: 170,
+
+  /* Pixel plot box inside the 660x470 viewBox */
+  plot: { left: 74, right: 622, top: 26, bottom: 396 },
+
+  /* Curve shape parameters -------------------------------------------------
+     AD   : P = 100 - a1*d + a2*d^2      (d = Y-100)  → downward, convex
+     SRAS : P = 100 + b1*d + b2*d*|d|                 → upward, steepening
+     Both are shifted HORIZONTALLY: we evaluate f(Y - shift).
+     A positive shift = curve moves RIGHT.                                  */
+  ad:   { a1: 0.62, a2: 0.0016 },
+  sras: { b1: 0.42, b2: 0.0055 },
+
+  maxShift: 46,          // clamp on any single curve shift (index points)
+  animMs: 500,           // spec: all curve movement animates over 500 ms
+  potentialBase: 100     // LRAS sits at 100 when every structural slider is 50
+};
+
+/* --- Sliders -------------------------------------------------------------
+ * Every control declares how a +1 unit move (from its 50 midpoint) shifts
+ * each curve rightwards. Negative weight = leftward shift.
+ * `invert:true` only affects the helper text (e.g. interest rate).
+ * ------------------------------------------------------------------------ */
+CONFIG.controls = [
+  { group:'Demand-side (AD)', items:[
+    { id:'gov',   name:'Government Spending', ad: 0.34, unit:'idx' },
+    { id:'tax',   name:'Taxes',               ad:-0.28, unit:'idx' },
+    { id:'conf',  name:'Consumer Confidence', ad: 0.26, unit:'idx' },
+    { id:'inv',   name:'Business Investment', ad: 0.26, unit:'idx' },
+    { id:'rate',  name:'Interest Rate',       ad:-0.30, unit:'%',  invert:true },
+    { id:'money', name:'Money Supply',        ad: 0.26, unit:'idx' },
+    { id:'exp',   name:'Exports',             ad: 0.20, unit:'idx' },
+    { id:'imp',   name:'Imports',             ad:-0.20, unit:'idx' },
+    { id:'fx',    name:'Exchange Rate (strength)', ad:-0.16, unit:'idx' }
+  ]},
+  { group:'Short-run supply (SRAS)', items:[
+    { id:'oil',   name:'Oil / Input Price',   sras:-0.38, unit:'$' },
+    { id:'einf',  name:'Expected Inflation',  sras:-0.32, unit:'%' }
+  ]},
+  { group:'Supply-side (SRAS + LRAS)', items:[
+    { id:'tech',  name:'Technology',          sras: 0.22, lras: 0.26, unit:'idx' },
+    { id:'prod',  name:'Productivity',        sras: 0.26, lras: 0.26, unit:'idx' }
+  ]},
+  { group:'Structural / potential (LRAS)', items:[
+    { id:'labour',name:'Labour Force',        lras: 0.30, sras: 0.16, unit:'idx' },
+    { id:'cap',   name:'Capital Stock',       lras: 0.30, sras: 0.14, unit:'idx' }
+  ]}
+];
+
+/* Flat lookup: id -> control definition */
+CONFIG.byId = {};
+CONFIG.controls.forEach(g => g.items.forEach(c => { CONFIG.byId[c.id] = c; }));
+CONFIG.ids = Object.keys(CONFIG.byId);
+
+
+/* ==========================================================================
+ * 2. MODEL — pure economics. No DOM, no SVG. Safe to unit-test.
+ * ======================================================================== */
+const Model = {
+
+  /** Aggregate Demand: price level as a function of real GDP.
+   *  Downward sloping (wealth, interest-rate and net-export effects) and
+   *  convex to the origin, exactly as drawn in textbooks. */
+  adAt(Y, shift){
+    const d = (Y - shift) - 100;
+    return 100 - CONFIG.ad.a1 * d + CONFIG.ad.a2 * d * d;
+  },
+
+  /** Short-Run Aggregate Supply: upward sloping, and steepening as the
+   *  economy approaches capacity (sticky wages + bottlenecks). */
+  srasAt(Y, shift){
+    const d = (Y - shift) - 100;
+    return 100 + CONFIG.sras.b1 * d + CONFIG.sras.b2 * d * Math.abs(d) * 0.5;
+  },
+
+  /** Equilibrium = intersection of AD and SRAS. Solved by bisection so the
+   *  solver keeps working if you change the functional forms above. */
+  equilibrium(adShift, srasShift){
+    const f = Y => this.adAt(Y, adShift) - this.srasAt(Y, srasShift);
+    let lo = CONFIG.gdpMin - 60, hi = CONFIG.gdpMax + 60;
+    let flo = f(lo);
+    for (let i = 0; i < 70; i++){
+      const mid = (lo + hi) / 2, fm = f(mid);
+      if ((flo < 0) === (fm < 0)) { lo = mid; flo = fm; } else { hi = mid; }
+    }
+    const Y = (lo + hi) / 2;
+    return { Y, P: this.adAt(Y, adShift) };
+  },
+
+  /** Aggregate the slider deviations into three curve shifts. */
+  shiftsFromSliders(s){
+    let ad = 0, sras = 0, lras = 0;
+    CONFIG.ids.forEach(id => {
+      const c = CONFIG.byId[id], dev = s[id] - 50;
+      if (c.ad)   ad   += c.ad   * dev;
+      if (c.sras) sras += c.sras * dev;
+      if (c.lras) lras += c.lras * dev;
+    });
+    return { ad, sras, lras };
+  },
+
+  /** Full macro solution for a given state. Everything downstream reads this. */
+  solve(st){
+    const w = this.shiftsFromSliders(st.sliders);
+    const adShift   = clamp(w.ad   + st.manual.ad,   -CONFIG.maxShift, CONFIG.maxShift);
+    const srasShift = clamp(w.sras + st.manual.sras, -CONFIG.maxShift, CONFIG.maxShift);
+    const lrasShift = clamp(w.lras + st.manual.lras, -CONFIG.maxShift, CONFIG.maxShift);
+
+    const eq   = this.equilibrium(adShift, srasShift);
+    const Ypot = CONFIG.potentialBase + lrasShift;
+    const gap  = eq.Y - Ypot;                    // + inflationary, − recessionary
+    const gapPct = (gap / Ypot) * 100;
+
+    /* Inflation: anchored at 2 % when P = 100; rises with the price level and
+       with demand pressure once output exceeds potential (Phillips logic). */
+    const inflation = 2 + 0.55 * (eq.P - 100) + 0.06 * gapPct;
+
+    /* Unemployment via Okun's law around a 5 % natural rate. */
+    const unemployment = clamp(5 - 0.30 * gapPct, 1.5, 25);
+
+    /* Expenditure decomposition (illustrative shares of the GDP index). */
+    const s = st.sliders;
+    const C  = 0.57 * eq.Y * (1 + 0.005*(s.conf-50) - 0.004*(s.tax-50));
+    const I  = 0.26 * eq.Y * (1 + 0.006*(s.inv-50) - 0.007*(s.rate-50) + 0.003*(s.cap-50));
+    const G  = 0.15 * eq.Y * (1 + 0.012*(s.gov-50));
+    const NX = 0.02 * eq.Y + 0.30*(s.exp-50) - 0.30*(s.imp-50) - 0.12*(s.fx-50);
+
+    const bizConf = clamp(50 + 0.9*gapPct + 0.35*(s.inv-50) - 0.35*(s.rate-50)
+                             - 0.30*(s.oil-50) + 0.25*(s.tech-50), 0, 100);
+
+    return {
+      adShift, srasShift, lrasShift,
+      Y: eq.Y, P: eq.P, Ypot, gap, gapPct,
+      inflation, unemployment, C, I, G, NX, bizConf,
+      regime: this.regime({ gapPct, inflation, P: eq.P, Y: eq.Y, srasShift, lrasShift })
+    };
+  },
+
+  /** Label the macroeconomic condition currently on screen.
+   *  Note the 'growth' case: when LRAS has moved right, output can be BELOW
+   *  the new potential while still being higher and cheaper than before. That
+   *  is supply-driven growth, not a demand-driven recession — the two look
+   *  identical if you only read the sign of the output gap. */
+  regime(x){
+    if (x.lrasShift > 2.5 && x.srasShift > 1 && x.P < 100.2 && x.Y > 100.5) return 'growth';
+    if (x.gapPct < -1.2 && (x.inflation > 5.5 || (x.srasShift < -2 && x.P > 100.5))) return 'stagflation';
+    if (x.gapPct < -1.2) return 'recession';
+    if (x.gapPct >  1.2) return 'overheating';
+    return 'fullEmployment';
+  }
+};
+
+/* Small numeric helpers used everywhere. */
+function clamp(v, lo, hi){ return v < lo ? lo : v > hi ? hi : v; }
+function fmt(v, d){ return (Math.round(v * Math.pow(10,d||0)) / Math.pow(10,d||0)).toFixed(d||0); }
+
+
+/* ==========================================================================
+ * 3. STATE — single source of truth.
+ *    `sliders`  : raw control values (0–100, midpoint 50)
+ *    `manual`   : extra shift added by dragging a curve directly
+ *    `anim`     : displayed shifts, tweened toward the solved targets
+ * ======================================================================== */
+const State = {
+  sliders: {},
+  manual : { ad:0, sras:0, lras:0 },
+  anim   : { ad:0, sras:0, lras:0 },
+  ghost  : null,      // snapshot of previous curves, drawn faintly
+  solved : null,      // latest Model.solve() result
+  prevGap: 0,         // for business-cycle direction (expansion vs recovery)
+  dragging: null,
+  lastCause: null,    // {key, dir} — what most recently changed, drives Story
+  quiz: { asked:0, right:0, current:null }
+};
+CONFIG.ids.forEach(id => State.sliders[id] = 50);
+/* ==========================================================================
+ * 4. GEOMETRY — economic space <-> pixel space, and smooth curve building
+ * ======================================================================== */
+const Geo = {
+  x(Y){
+    const p = CONFIG.plot;
+    return p.left + (Y - CONFIG.gdpMin) / (CONFIG.gdpMax - CONFIG.gdpMin) * (p.right - p.left);
+  },
+  y(P){
+    const p = CONFIG.plot;
+    return p.bottom - (P - CONFIG.priceMin) / (CONFIG.priceMax - CONFIG.priceMin) * (p.bottom - p.top);
+  },
+  /** inverse of x(): pixels -> GDP index (used while dragging) */
+  invX(px){
+    const p = CONFIG.plot;
+    return CONFIG.gdpMin + (px - p.left) / (p.right - p.left) * (CONFIG.gdpMax - CONFIG.gdpMin);
+  },
+
+  /** Catmull-Rom spline through the sampled points, emitted as cubic Bezier
+   *  segments. This is what makes the curves look hand-drawn/textbook rather
+   *  than piecewise-linear, and keeps them sharp at any zoom (SVG). */
+  spline(pts){
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+    for (let i = 0; i < pts.length - 1; i++){
+      const p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || pts[i+1];
+      const c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+      const c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
+      d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+    }
+    return d;
+  },
+
+  /** Sample a curve function across the visible GDP range, dropping points
+   *  whose price level would fall outside the plotted window. */
+  sample(fn, shift){
+    const pts = [], N = 46;
+    for (let i = 0; i <= N; i++){
+      const Y = CONFIG.gdpMin + (CONFIG.gdpMax - CONFIG.gdpMin) * i / N;
+      const P = fn(Y, shift);
+      if (P < CONFIG.priceMin - 4 || P > CONFIG.priceMax + 4) continue;
+      pts.push([this.x(Y), this.y(clamp(P, CONFIG.priceMin - 2, CONFIG.priceMax + 2))]);
+    }
+    return pts;
+  }
+};
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+
+/* ==========================================================================
+ * 5. RENDER — paints the main AD–AS diagram and the business-cycle chart.
+ *    Render is a pure function of (animated shifts + solved model). It never
+ *    mutates state, so it can be called at 60 fps during animation.
+ * ======================================================================== */
+const Render = {
+
+  chart(){
+    const svg = document.getElementById('chart');
+    const p = CONFIG.plot;
+    const a = State.anim, m = State.solved;
+
+    /* Equilibrium for the *displayed* (animated) curves, so the dot always
+       sits exactly on the visible intersection mid-animation. */
+    const eq   = Model.equilibrium(a.ad, a.sras);
+    const Ypot = CONFIG.potentialBase + a.lras;
+    const gap  = eq.Y - Ypot;
+
+    const parts = [];
+
+    /* ---- gridlines ---------------------------------------------------- */
+    for (let P = 50; P <= CONFIG.priceMax; P += 20){
+      const yy = Geo.y(P);
+      parts.push(`<line class="grid-line" x1="${p.left}" y1="${yy}" x2="${p.right}" y2="${yy}"/>`);
+      parts.push(`<text class="tick-label" x="${p.left-9}" y="${yy+3.5}" text-anchor="end">${P}</text>`);
+    }
+    for (let Y = 40; Y <= CONFIG.gdpMax; Y += 20){
+      const xx = Geo.x(Y);
+      parts.push(`<line class="grid-line" x1="${xx}" y1="${p.top}" x2="${xx}" y2="${p.bottom}"/>`);
+      parts.push(`<text class="tick-label" x="${xx}" y="${p.bottom+16}" text-anchor="middle">${Y}</text>`);
+    }
+
+    /* ---- output-gap shading (drawn under the curves) -------------------- */
+    if (Math.abs(gap) > 0.4){
+      const x1 = Geo.x(Math.min(eq.Y, Ypot)), x2 = Geo.x(Math.max(eq.Y, Ypot));
+      const cls = gap < 0 ? 'rec' : 'inf';
+      parts.push(`<rect class="gap-fill ${cls}" x="${x1}" y="${p.top}" width="${Math.max(0,x2-x1)}" height="${p.bottom-p.top}"/>`);
+      const label = gap < 0 ? 'RECESSIONARY GAP' : 'INFLATIONARY GAP';
+      const cx = (x1 + x2) / 2;
+      parts.push(`<text class="gap-tag ${cls}" x="${cx}" y="${p.top+15}" text-anchor="middle">${label}</text>`);
+      parts.push(`<text class="gap-tag ${cls}" x="${cx}" y="${p.top+29}" text-anchor="middle" style="font-size:10px;font-weight:600">${gap>0?'+':''}${fmt(gap,1)} pts</text>`);
+    }
+
+    /* ---- axes ---------------------------------------------------------- */
+    parts.push(`<line class="axis" x1="${p.left}" y1="${p.top-6}" x2="${p.left}" y2="${p.bottom}"/>`);
+    parts.push(`<line class="axis" x1="${p.left}" y1="${p.bottom}" x2="${p.right+8}" y2="${p.bottom}"/>`);
+    parts.push(`<text class="axis-label" transform="translate(24,${(p.top+p.bottom)/2}) rotate(-90)" text-anchor="middle">Price Level (P)</text>`);
+    parts.push(`<text class="axis-label" x="${(p.left+p.right)/2}" y="${p.bottom+38}" text-anchor="middle">Real GDP (Y)</text>`);
+
+    /* ---- ghost curves (where we were before the last shock) ------------- */
+    if (State.ghost){
+      const g = State.ghost;
+      if (Math.abs(g.ad - a.ad) > 0.3)
+        parts.push(`<path class="ghost-curve" style="stroke:var(--ad)" d="${Geo.spline(Geo.sample(Model.adAt.bind(Model), g.ad))}"/>`);
+      if (Math.abs(g.sras - a.sras) > 0.3)
+        parts.push(`<path class="ghost-curve" style="stroke:var(--sras)" d="${Geo.spline(Geo.sample(Model.srasAt.bind(Model), g.sras))}"/>`);
+      if (Math.abs(g.lras - a.lras) > 0.3){
+        const gx = Geo.x(CONFIG.potentialBase + g.lras);
+        parts.push(`<line class="ghost-curve" style="stroke:var(--lras)" x1="${gx}" y1="${p.top}" x2="${gx}" y2="${p.bottom}"/>`);
+      }
+    }
+
+    /* ---- LRAS (vertical at potential GDP) ------------------------------- */
+    const xp = Geo.x(Ypot);
+    parts.push(`<line class="curve lras" x1="${xp}" y1="${p.top}" x2="${xp}" y2="${p.bottom}"/>`);
+    parts.push(`<line class="curve-hit" data-curve="lras" x1="${xp}" y1="${p.top}" x2="${xp}" y2="${p.bottom}"/>`);
+    parts.push(`<text class="curve-label lras" x="${xp}" y="${p.top-10}" text-anchor="middle">LRAS · Potential GDP</text>`);
+
+    /* ---- SRAS ----------------------------------------------------------- */
+    const srasPts = Geo.sample(Model.srasAt.bind(Model), a.sras);
+    const srasD = Geo.spline(srasPts);
+    parts.push(`<path class="curve sras" d="${srasD}"/>`);
+    parts.push(`<path class="curve-hit" data-curve="sras" d="${srasD}"/>`);
+    if (srasPts.length){
+      const t = srasPts[srasPts.length-1];
+      parts.push(`<text class="curve-label sras" x="${clamp(t[0]-6,p.left+30,p.right-8)}" y="${clamp(t[1]+14,p.top+16,p.bottom-6)}" text-anchor="end">SRAS</text>`);
+    }
+
+    /* ---- AD ------------------------------------------------------------- */
+    const adPts = Geo.sample(Model.adAt.bind(Model), a.ad);
+    const adD = Geo.spline(adPts);
+    parts.push(`<path class="curve ad" d="${adD}"/>`);
+    parts.push(`<path class="curve-hit" data-curve="ad" d="${adD}"/>`);
+    if (adPts.length){
+      const t = adPts[adPts.length-1];
+      parts.push(`<text class="curve-label ad" x="${clamp(t[0]+10,p.left,p.right-4)}" y="${clamp(t[1]+4,p.top+12,p.bottom-4)}">AD</text>`);
+    }
+
+    /* ---- equilibrium: dashed projections onto both axes ----------------- */
+    const ex = Geo.x(eq.Y), ey = Geo.y(eq.P);
+    parts.push(`<line class="proj" x1="${p.left}" y1="${ey}" x2="${ex}" y2="${ey}"/>`);
+    parts.push(`<line class="proj" x1="${ex}" y1="${p.bottom}" x2="${ex}" y2="${ey}"/>`);
+    parts.push(`<circle class="eq-halo" cx="${ex}" cy="${ey}" r="12"/>`);
+    parts.push(`<circle class="eq-dot" cx="${ex}" cy="${ey}" r="5.5"/>`);
+
+    /* axis call-outs for P* and Y* */
+    parts.push(`<rect class="readout-box" x="${p.left-62}" y="${ey-9}" width="52" height="18" rx="4"/>`);
+    parts.push(`<text class="readout" x="${p.left-36}" y="${ey+4}" text-anchor="middle">P* ${fmt(eq.P,1)}</text>`);
+    parts.push(`<rect class="readout-box" x="${ex-30}" y="${p.bottom+22}" width="60" height="18" rx="4"/>`);
+    parts.push(`<text class="readout" x="${ex}" y="${p.bottom+35}" text-anchor="middle">Y* ${fmt(eq.Y,1)}</text>`);
+
+    svg.innerHTML = parts.join('');
+  },
+
+  /* ---------------------------------------------------------------------- *
+   * Business-cycle chart. The marker's phase is derived from the size AND
+   * direction of the output gap, so pushing AD right walks the economy from
+   * trough → recovery → expansion → peak, exactly like the lecture diagram.
+   * ---------------------------------------------------------------------- */
+  cycle(){
+    const svg = document.getElementById('cycle');
+    const m = State.solved;
+    const L = 60, R = 640, T = 18, B = 132, mid = (T + B) / 2, amp = 44;
+
+    const norm = clamp(m.gapPct / 7, -0.999, 0.999);
+    const rising = (m.gapPct - State.prevGap) >= -0.0001;
+    let th = Math.asin(norm);                 // rising branch, −π/2 … π/2
+    if (!rising) th = Math.PI - th;           // falling branch
+    if (th > Math.PI) th -= 2 * Math.PI;      // keep in (−π/2 … 3π/2)
+
+    /* stage classification */
+    let stage;
+    if (th > 1.30 && th < 1.85)                 stage = 'Peak';
+    else if (th < -1.30 || th > 4.4)            stage = 'Trough';
+    else if (rising && m.gapPct < 0)            stage = 'Recovery';
+    else if (rising)                            stage = 'Expansion';
+    else if (!rising && m.gapPct > 0)           stage = 'Slowdown';
+    else                                        stage = 'Recession';
+    if (Math.abs(m.gapPct) < 0.35) stage = rising ? 'Expansion' : 'Slowdown';
+
+    const parts = [];
+    /* long-run growth trend line (the LRAS path through time) */
+    parts.push(`<line x1="${L}" y1="${mid}" x2="${R}" y2="${mid}" stroke="var(--lras)" stroke-width="1.6" stroke-dasharray="6 5"/>`);
+    parts.push(`<text x="${R}" y="${mid-7}" text-anchor="end" style="font-size:10.5px;fill:var(--lras);font-weight:650">Long-run trend (potential GDP)</text>`);
+
+    /* the wave: θ from −π/2 to 3π/2 mapped across the panel */
+    const pts = [];
+    for (let i = 0; i <= 120; i++){
+      const t = -Math.PI/2 + (2*Math.PI) * i/120;
+      pts.push([L + (R-L)*i/120, mid - amp*Math.sin(t)]);
+    }
+    parts.push(`<path d="${Geo.spline(pts)}" fill="none" stroke="var(--ink-2)" stroke-width="2.2"/>`);
+
+    /* stage bands */
+    const bands = [
+      ['Trough',    -Math.PI/2],
+      ['Recovery',  -Math.PI/4],
+      ['Expansion',  Math.PI/4],
+      ['Peak',       Math.PI/2],
+      ['Slowdown',   3*Math.PI/4],
+      ['Recession',  5*Math.PI/4]
+    ];
+    bands.forEach(([name, t]) => {
+      const px = L + (R-L) * (t + Math.PI/2) / (2*Math.PI);
+      const py = mid - amp*Math.sin(t);
+      const on = name === stage;
+      parts.push(`<circle cx="${px}" cy="${py}" r="3" fill="${on?'var(--ad)':'#c3c9d6'}"/>`);
+      parts.push(`<text x="${px}" y="${py + (Math.sin(t)>0?-12:20)}" text-anchor="middle" style="font-size:10.5px;font-weight:${on?700:500};fill:${on?'var(--ad)':'var(--ink-3)'}">${name}</text>`);
+    });
+
+    /* current position marker */
+    const mx = L + (R-L) * (th + Math.PI/2) / (2*Math.PI);
+    const my = mid - amp*Math.sin(th);
+    parts.push(`<line x1="${mx}" y1="${T}" x2="${mx}" y2="${B}" stroke="var(--ad)" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>`);
+    parts.push(`<circle cx="${mx}" cy="${my}" r="7.5" fill="var(--ad)" opacity=".18"/>`);
+    parts.push(`<circle cx="${mx}" cy="${my}" r="4.5" fill="#fff" stroke="var(--ad)" stroke-width="2.4"/>`);
+    parts.push(`<text x="8" y="${mid+4}" style="font-size:10.5px;fill:var(--ink-3)">Real GDP</text>`);
+    parts.push(`<text x="${R}" y="${B+26}" text-anchor="end" style="font-size:10.5px;fill:var(--ink-3)">Time →</text>`);
+
+    svg.innerHTML = parts.join('');
+    document.getElementById('cycleStage').innerHTML =
+      `Current stage: <b>${stage}</b> — output gap ${m.gapPct>0?'+':''}${fmt(m.gapPct,1)}% of potential, and ${rising?'rising':'falling'}.`;
+    return stage;
+  }
+};
+/* ==========================================================================
+ * 6. DASHBOARD — definitions + animated counters
+ * ======================================================================== */
+const METRICS = [
+  { k:'Real GDP',            get:m=>m.Y,            d:1, sub:m=>'index, base 100' },
+  { k:'Potential GDP',       get:m=>m.Ypot,         d:1, sub:m=>'set by LRAS' },
+  { k:'Price Level',         get:m=>m.P,            d:1, sub:m=>'GDP deflator index' },
+  { k:'Inflation',           get:m=>m.inflation,    d:1, suf:'%', sub:m=>m.inflation>6?'above target':'near target',
+    tone:m=>m.inflation>6?'down':(m.inflation<0.5?'down':'') },
+  { k:'Unemployment',        get:m=>m.unemployment, d:1, suf:'%', sub:m=>'natural rate 5.0%',
+    tone:m=>m.unemployment>6.5?'down':(m.unemployment<3.8?'up':'') },
+  { k:'Output Gap',          get:m=>m.gapPct,       d:1, suf:'%', sign:true,
+    sub:m=>m.gapPct<-0.4?'recessionary':(m.gapPct>0.4?'inflationary':'at potential'),
+    tone:m=>m.gapPct<-0.4?'down':(m.gapPct>0.4?'up':'') },
+  { k:'Consumer Spending',   get:m=>m.C,  d:1, sub:m=>'C' },
+  { k:'Investment',          get:m=>m.I,  d:1, sub:m=>'I' },
+  { k:'Government Spending', get:m=>m.G,  d:1, sub:m=>'G' },
+  { k:'Net Exports',         get:m=>m.NX, d:1, sign:true, sub:m=>m.NX<0?'trade deficit':'trade surplus' },
+  { k:'Business Confidence', get:m=>m.bizConf, d:0, sub:m=>m.bizConf>60?'optimistic':(m.bizConf<40?'pessimistic':'neutral'),
+    tone:m=>m.bizConf>60?'up':(m.bizConf<40?'down':'') }
+];
+
+const Dash = {
+  cur: {},           // currently displayed (tweening) values
+  build(){
+    document.getElementById('metrics').innerHTML = METRICS.map((mt,i)=>
+      `<div class="metric"><div class="k">${esc(mt.k)}</div>
+       <div class="v" id="mv${i}">–</div><div class="d" id="md${i}"></div></div>`).join('');
+    METRICS.forEach((mt,i)=> this.cur[i] = mt.get(State.solved));
+  },
+  /** Called every animation frame: eases each counter toward its target. */
+  tick(){
+    const m = State.solved; let moving = false;
+    METRICS.forEach((mt,i)=>{
+      const target = mt.get(m);
+      const cur = this.cur[i];
+      const next = Math.abs(target-cur) < 0.02 ? target : cur + (target-cur)*0.22;
+      if (next !== cur) moving = true;
+      this.cur[i] = next;
+      const el = document.getElementById('mv'+i);
+      if (el){
+        const s = (mt.sign && next>0 ? '+' : '') + fmt(next, mt.d) + (mt.suf||'');
+        if (el.textContent !== s) el.textContent = s;
+        const tone = mt.tone ? mt.tone(m) : '';
+        el.className = 'v' + (tone ? ' '+tone : '');
+      }
+      const de = document.getElementById('md'+i);
+      if (de) de.textContent = mt.sub ? mt.sub(m) : '';
+    });
+    return moving;
+  }
+};
+
+
+/* ==========================================================================
+ * 7. ANIMATION — one rAF loop drives curve tweening AND dashboard counters.
+ *    Curve movement uses a 500 ms ease-in-out, per spec.
+ * ======================================================================== */
+const Anim = {
+  raf:null, t0:0, dur:CONFIG.animMs, from:null, to:null,
+
+  ease(t){ return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; },
+
+  to_(target, dur){
+    this.from = Object.assign({}, State.anim);
+    this.to   = target;
+    this.dur  = dur === undefined ? CONFIG.animMs : dur;
+    this.t0   = performance.now();
+    this.run();
+  },
+  run(){ if (!this.raf) this.raf = requestAnimationFrame(this.step.bind(this)); },
+
+  step(now){
+    this.raf = null;
+    let busy = false;
+
+    if (this.to){
+      const t = this.dur <= 0 ? 1 : clamp((now - this.t0)/this.dur, 0, 1);
+      const e = this.ease(t);
+      ['ad','sras','lras'].forEach(k=> State.anim[k] = this.from[k] + (this.to[k]-this.from[k])*e );
+      if (t >= 1) this.to = null; else busy = true;
+    }
+    Render.chart();
+    if (Dash.tick()) busy = true;
+    Render.cycle();
+    if (busy) this.run();
+  }
+};
+
+
+/* ==========================================================================
+ * 8. UPDATE PIPELINE — the single entry point after ANY change.
+ *    cause = { key, dir, label } describing what the user just did; it drives
+ *    Story Mode and the diagnosis panel.
+ * ======================================================================== */
+function commit(cause, opts){
+  opts = opts || {};
+  const prev = Object.assign({}, State.anim);
+  State.prevGap = State.solved ? State.solved.gapPct : 0;
+
+  State.solved = Model.solve(State);
+  if (cause) State.lastCause = cause;
+
+  const target = { ad: State.solved.adShift, sras: State.solved.srasShift, lras: State.solved.lrasShift };
+  const moved = Math.abs(prev.ad-target.ad) + Math.abs(prev.sras-target.sras) + Math.abs(prev.lras-target.lras);
+
+  /* Keep a faint "before" trace whenever a shock actually moved something. */
+  State.ghost = (moved > 1.5 && !opts.instant) ? prev : null;
+
+  if (opts.instant){
+    State.anim = target;
+    Anim.to = null;
+    Render.chart(); Dash.tick(); Render.cycle();
+    Anim.run();                        // let counters finish easing
+  } else {
+    Anim.to_(target, opts.dur);
+  }
+
+  Narrative.render();
+  if (State.ghost) setTimeout(()=>{ if (State.ghost === prev){ State.ghost = null; Render.chart(); } }, 2400);
+}
+
+
+/* ==========================================================================
+ * 9. INTERACTION — sliders, curve dragging, curve clicks
+ * ======================================================================== */
+const UI = {
+
+  buildControls(){
+    const host = document.getElementById('controls');
+    host.innerHTML = CONFIG.controls.map(g => `
+      <div class="group">
+        <div class="group-h">${esc(g.group)}</div>
+        ${g.items.map(c => {
+          const cls = c.ad ? 's-ad' : (c.sras && c.lras ? 's-both' : (c.lras ? 's-lras' : 's-sras'));
+          const tag = c.ad ? ['tag-ad','AD'] : (c.sras && c.lras ? ['tag-both','SRAS+LRAS']
+                    : (c.lras ? ['tag-lras', c.sras?'LRAS+SRAS':'LRAS'] : ['tag-sras','SRAS']));
+          return `<div class="ctl">
+            <div class="ctl-row">
+              <span class="ctl-name">${esc(c.name)}</span>
+              <span><span class="ctl-tag ${tag[0]}">${tag[1]}</span>
+              <span class="ctl-val" id="val-${c.id}">50</span></span>
+            </div>
+            <input type="range" class="${cls}" min="0" max="100" step="1" value="50"
+                   id="sl-${c.id}" aria-label="${esc(c.name)}">
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    CONFIG.ids.forEach(id => {
+      const el = document.getElementById('sl-'+id);
+      el.addEventListener('input', () => {
+        const v = +el.value, dir = v > State.sliders[id] ? 1 : -1;
+        State.sliders[id] = v;
+        document.getElementById('val-'+id).textContent = v;
+        commit({ key:id, dir, label:CONFIG.byId[id].name }, { dur:180 });
+      });
+    });
+  },
+
+  syncSliders(){
+    CONFIG.ids.forEach(id=>{
+      const el = document.getElementById('sl-'+id);
+      if (el){ el.value = State.sliders[id]; document.getElementById('val-'+id).textContent = State.sliders[id]; }
+    });
+  },
+
+  /* ---- dragging a curve ------------------------------------------------ */
+  initDrag(){
+    const svg = document.getElementById('chart');
+
+    /* client pixels -> SVG user units (the viewBox is 660 wide) */
+    const userX = ev => {
+      const r = svg.getBoundingClientRect();
+      if (!r.width) return 0;                       // guard: not laid out yet
+      return (ev.clientX - r.left) * (660 / r.width);
+    };
+
+    svg.addEventListener('pointerdown', ev => {
+      const t = ev.target.closest ? ev.target.closest('[data-curve]') : null;
+      if (!t) return;
+      const which = t.getAttribute('data-curve');
+      State.dragging = { which, x0:userX(ev), base:State.manual[which], moved:0 };
+      ev.preventDefault();
+    });
+
+    window.addEventListener('pointermove', ev => {
+      const d = State.dragging; if (!d) return;
+      const dxPx = userX(ev) - d.x0;
+      d.moved = Math.max(d.moved, Math.abs(dxPx));
+      const scale = (CONFIG.gdpMax-CONFIG.gdpMin)/(CONFIG.plot.right-CONFIG.plot.left);
+      const auto = Model.shiftsFromSliders(State.sliders)[d.which];
+      State.manual[d.which] = clamp(d.base + dxPx*scale, -CONFIG.maxShift-auto, CONFIG.maxShift-auto);
+      State.ghost = null;
+      commit({ key:'drag-'+d.which, dir: dxPx>0?1:-1, label:d.which.toUpperCase()+' (dragged)' }, { instant:true });
+    });
+
+    window.addEventListener('pointerup', ev => {
+      const d = State.dragging; if (!d) return;
+      State.dragging = null;
+      if (d.moved < 3) Narrative.explainCurve(d.which);   // a click, not a drag
+    });
+  }
+};
+/* ==========================================================================
+ * 10. NARRATIVE — Story Mode, diagnosis, and Educational Mode
+ * ======================================================================== */
+
+/* Causal chains in plain English. [up, down] for each control. */
+const STORIES = {
+  gov: {
+    up:['Government announces a large highway and metro programme',
+        'Construction firms win the contracts and order steel and cement',
+        'Workers are hired and receive salaries',
+        'Households spend those salaries on goods and services',
+        'Firms see order books fill up and hire more',
+        'Total spending in the economy rises → AD shifts RIGHT',
+        'Real GDP rises and the price level rises'],
+    down:['Government cuts its capital budget','Contracts are cancelled and projects stall',
+          'Construction workers are laid off','Household incomes and spending fall',
+          'Total spending falls → AD shifts LEFT','Real GDP falls and price pressure eases']
+  },
+  tax: {
+    up:['Income tax rates are raised','Households keep less of every rupee earned',
+        'Disposable income falls','Consumption spending falls','AD shifts LEFT',
+        'Output falls and inflation cools'],
+    down:['Income tax rates are cut','Take-home pay rises for households',
+          'Consumption rises immediately','Firms respond to stronger sales',
+          'AD shifts RIGHT','Output and the price level both rise']
+  },
+  conf: {
+    up:['Households turn optimistic about job security','Precautionary saving falls',
+        'Big-ticket purchases — cars, homes, appliances — resume','Consumption rises',
+        'AD shifts RIGHT','Output and prices rise'],
+    down:['News turns gloomy and households fear job losses','Saving rises as a precaution',
+          'Discretionary purchases are postponed','Consumption falls','AD shifts LEFT',
+          'Output falls — a classic demand-driven slowdown']
+  },
+  inv: {
+    up:['Firms see profitable projects and approve capex','Orders for machinery and plant rise',
+        'Capital-goods producers hire and expand','Investment spending rises','AD shifts RIGHT',
+        'Output rises today; the capital stock raises LRAS tomorrow'],
+    down:['Boards freeze capital expenditure','Machinery orders are cancelled',
+          'Capital-goods firms cut shifts','Investment falls','AD shifts LEFT','Output falls']
+  },
+  rate: {
+    up:['The central bank raises the policy rate','Loans for homes, cars and plant become costlier',
+        'Interest-sensitive investment and consumption are postponed','AD shifts LEFT',
+        'Output falls and inflation is brought down — the deliberate cost of tightening'],
+    down:['The central bank cuts the repo rate','EMIs and corporate borrowing costs fall',
+          'Firms borrow to invest; households borrow to buy homes and cars',
+          'Investment and consumption rise','AD shifts RIGHT','Output rises, prices rise a little']
+  },
+  money: {
+    up:['The central bank expands the money supply','Banks hold more reserves and lend freely',
+        'Interest rates fall and credit is easy','Spending on goods and assets rises','AD shifts RIGHT',
+        'Output rises in the short run; if the economy is already at potential, mostly prices rise'],
+    down:['Liquidity is drained from the banking system','Credit becomes scarce and dearer',
+          'Spending is squeezed','AD shifts LEFT','Output and inflation both fall']
+  },
+  exp: {
+    up:['Foreign demand for domestic goods strengthens','Export orders rise at factories',
+        'Exporters hire and expand production','Net exports rise','AD shifts RIGHT','Output and prices rise'],
+    down:['Foreign buyers cut orders','Export factories run below capacity','Net exports fall',
+          'AD shifts LEFT','Output falls']
+  },
+  imp: {
+    up:['Households and firms switch to imported goods','Spending leaks abroad instead of to domestic firms',
+        'Net exports fall','AD shifts LEFT','Domestic output falls'],
+    down:['Import demand falls (or import substitution succeeds)','Spending is redirected to domestic producers',
+          'Net exports rise','AD shifts RIGHT','Domestic output rises']
+  },
+  fx: {
+    up:['The domestic currency appreciates','Exports become expensive abroad; imports become cheap at home',
+        'Export orders fall and imports rise','Net exports fall','AD shifts LEFT','Output falls'],
+    down:['The domestic currency depreciates','Exports become cheaper abroad; imports dearer at home',
+          'Net exports improve','AD shifts RIGHT','Output rises (imported inputs do get costlier)']
+  },
+  oil: {
+    up:['Crude oil prices spike','Fuel, freight and power become expensive',
+        'Production costs rise at every firm','At any price level firms can profitably supply less',
+        'SRAS shifts LEFT','Price level rises AND real GDP falls',
+        'Stagflation — the policy dilemma: fighting inflation deepens the recession'],
+    down:['Crude oil prices collapse','Freight, power and input bills fall',
+          'Firms can supply more at every price level','SRAS shifts RIGHT',
+          'Output rises and inflation falls at the same time — a benign supply shock']
+  },
+  einf: {
+    up:['Workers and firms expect higher inflation next year','Wage negotiations build the expectation in',
+        'Unit labour costs rise before any extra output is produced','SRAS shifts LEFT',
+        'Prices rise, output falls — expectations become self-fulfilling'],
+    down:['Inflation expectations are credibly anchored lower','Wage demands moderate',
+          'Unit costs fall','SRAS shifts RIGHT','Disinflation without a large output loss']
+  },
+  tech: {
+    up:['A general-purpose technology (say AI) diffuses through firms',
+        'The same labour and capital produce more output',
+        'Unit costs fall → SRAS shifts RIGHT',
+        'The economy\'s productive capacity itself rises → LRAS shifts RIGHT',
+        'Real GDP rises while the price level FALLS',
+        'Potential GDP rises — this is genuine long-run growth, not a boom'],
+    down:['Technology is disrupted or obsolete capital is scrapped','Unit costs rise',
+          'SRAS shifts LEFT and LRAS shifts LEFT','Output falls and potential output falls with it']
+  },
+  prod: {
+    up:['Better processes, skills and management raise output per worker',
+        'Unit costs fall → SRAS shifts RIGHT','Sustainable capacity rises → LRAS shifts RIGHT',
+        'More output at a lower price level'],
+    down:['Productivity stagnates','Unit costs rise','SRAS and LRAS both shift LEFT',
+          'Lower output at a higher price level']
+  },
+  labour: {
+    up:['Labour-force participation rises (demographics, migration, women re-entering work)',
+        'More workers are available at every wage','Sustainable output capacity rises',
+        'LRAS shifts RIGHT','Potential GDP rises'],
+    down:['The labour force shrinks — ageing, emigration or a strike',
+          'Fewer workers can be employed even at full capacity','LRAS shifts LEFT',
+          'Potential GDP falls; the same output now looks inflationary']
+  },
+  cap: {
+    up:['Years of investment accumulate into a larger capital stock',
+        'Each worker has more machinery, roads and power to work with',
+        'Sustainable capacity rises','LRAS shifts RIGHT','Potential GDP rises permanently'],
+    down:['Capital depreciates faster than it is replaced','Each worker has less to work with',
+          'LRAS shifts LEFT','Potential GDP falls']
+  }
+};
+['ad','sras','lras'].forEach(c=>{
+  const nm = {ad:'Aggregate Demand',sras:'Short-Run Aggregate Supply',lras:'Long-Run Aggregate Supply'}[c];
+  STORIES['drag-'+c] = {
+    up:[`You dragged ${nm} to the RIGHT`,
+        c==='ad' ? 'At every price level, more output is demanded'
+                 : c==='sras' ? 'At every price level, firms will supply more'
+                              : 'The economy can sustainably produce more',
+        c==='lras' ? 'Potential GDP rises — the recession/inflation diagnosis changes even if actual GDP does not'
+                   : 'A new equilibrium forms where AD meets SRAS',
+        c==='ad' ? 'Equilibrium GDP rises and the price level rises'
+                 : c==='sras' ? 'Equilibrium GDP rises and the price level falls' : 'The output gap narrows or reverses'],
+    down:[`You dragged ${nm} to the LEFT`,
+        c==='ad' ? 'At every price level, less output is demanded'
+                 : c==='sras' ? 'At every price level, firms supply less'
+                              : 'Sustainable capacity has shrunk',
+        c==='ad' ? 'Equilibrium GDP falls and the price level falls'
+                 : c==='sras' ? 'Equilibrium GDP falls and the price level rises — stagflation'
+                              : 'Potential GDP falls, opening an inflationary gap']
+  };
+});
+
+const CURVE_EDU = {
+  ad: { title:'Why is Aggregate Demand downward sloping?', color:'var(--ad)', body:[
+    '<b>Real balance (wealth) effect.</b> A lower price level makes the money people hold worth more, so they feel richer and buy more.',
+    '<b>Interest-rate effect.</b> A lower price level means less money is needed for transactions; interest rates fall, so investment and durable consumption rise.',
+    '<b>Net-export effect.</b> A lower domestic price level makes home-made goods cheaper than foreign goods, so exports rise and imports fall.',
+    'AD is <i>not</i> a market demand curve. It is C + I + G + NX plotted against the overall price level.'
+  ]},
+  sras: { title:'Why is Short-Run Aggregate Supply upward sloping?', color:'var(--sras)', body:[
+    '<b>Sticky wages and contracts.</b> Wages are fixed by contract in the short run, so when output prices rise, profit margins widen and firms expand output.',
+    '<b>Sticky input prices.</b> Many input costs are locked in, so higher output prices mean higher real returns to producing.',
+    '<b>Misperceptions.</b> Firms initially read a higher price level as a rise in demand for <i>their</i> product and produce more.',
+    'It gets <b>steeper near capacity</b>: once bottlenecks bind, extra demand raises prices far more than output.'
+  ]},
+  lras: { title:'Why is Long-Run Aggregate Supply vertical?', color:'var(--lras)', body:[
+    'In the long run all wages and prices adjust fully, so <b>money illusion disappears</b>.',
+    'What an economy can produce sustainably depends only on <b>real</b> factors: the labour force, the capital stock, technology, productivity and institutions.',
+    'Doubling every price and wage does not create a single extra machine or worker — hence output is independent of the price level and the curve is vertical.',
+    'LRAS marks <b>potential GDP</b> (full-employment output). Demand policy moves the economy <i>along</i> it in the short run; only supply-side change moves the curve itself.'
+  ]}
+};
+
+const Narrative = {
+
+  diagnosis(){
+    const m = State.solved;
+    const badges = {
+      recession:['b-rec','Recessionary Gap'],
+      overheating:['b-inf','Inflationary Gap'],
+      stagflation:['b-stag','Stagflation'],
+      growth:['b-growth','Supply-Driven Long-Run Growth'],
+      fullEmployment:['b-growth','Full-Employment Equilibrium']
+    }[m.regime];
+
+    const txt = {
+      recession:`Equilibrium GDP (${fmt(m.Y,1)}) is <b>below</b> potential (${fmt(m.Ypot,1)}). Factories run below capacity and unemployment rises above its natural rate to ${fmt(m.unemployment,1)}%. Left alone, wages eventually fall and SRAS drifts right — but slowly. This is the textbook case for <b>expansionary fiscal or monetary policy</b>.`,
+      overheating:`Equilibrium GDP (${fmt(m.Y,1)}) is <b>above</b> potential (${fmt(m.Ypot,1)}). The economy is producing beyond its sustainable rate: overtime, bottlenecks and bidding wars for workers. Inflation is running at ${fmt(m.inflation,1)}%. Expect wage demands to push SRAS left, returning output to potential at a permanently higher price level unless demand is restrained.`,
+      stagflation:`Output is <b>below</b> potential while the price level is <b>high</b> — the signature of an adverse supply shock. Both parts of the mandate are violated at once. Demand stimulus would raise output but worsen inflation; tightening would tame inflation but deepen the downturn. Only supply-side measures fix both.`,
+      growth:`Potential GDP has risen to ${fmt(m.Ypot,1)} and actual output has risen to ${fmt(m.Y,1)} <b>while the price level fell</b> to ${fmt(m.P,1)} — more output at lower prices, which only a supply-side improvement can deliver. Actual output still lags the new potential, so the gap band is shaded: capacity has been created faster than demand has grown. The textbook lesson is that <b>supply-side growth needs demand to grow with it</b>; push AD right and the economy fills its new capacity without the inflation that demand stimulus alone would cause.`,
+      fullEmployment:`Equilibrium GDP is essentially <b>at potential</b>. AD, SRAS and LRAS intersect at a single point: this is long-run equilibrium. Unemployment sits near its natural rate (${fmt(m.unemployment,1)}%) and inflation is contained at ${fmt(m.inflation,1)}%. From here, only LRAS movement raises output sustainably.`
+    }[m.regime];
+
+    return `<span class="state-badge ${badges[0]}">${badges[1]}</span>
+      <p>${txt}</p>
+      <p style="font-family:var(--mono);font-size:11.5px;color:var(--ink-3)">
+        Y* ${fmt(m.Y,1)} &nbsp;·&nbsp; P* ${fmt(m.P,1)} &nbsp;·&nbsp; Y<sub>potential</sub> ${fmt(m.Ypot,1)}
+        &nbsp;·&nbsp; gap ${m.gap>0?'+':''}${fmt(m.gap,1)} (${m.gapPct>0?'+':''}${fmt(m.gapPct,1)}%)
+      </p>`;
+  },
+
+  story(){
+    const c = State.lastCause;
+    if (!c) return ['Move any slider, drag a curve, or pick a scenario — the causal chain from cause to GDP appears here in plain English.'];
+    if (c.steps) return c.steps;
+    const s = STORIES[c.key];
+    if (!s) return [`${c.label} changed.`];
+    return (c.dir > 0 ? s.up : s.down);
+  },
+
+  render(){
+    document.getElementById('diagnosis').innerHTML = this.diagnosis();
+    const steps = this.story();
+    const ol = document.getElementById('story');
+    ol.innerHTML = steps.map((t,i)=>
+      `<li class="${i===0?'hi':(i===steps.length-1?'term':'')} chain-enter" style="animation-delay:${i*45}ms">${t}</li>`).join('');
+  },
+
+  explainCurve(which){
+    const e = CURVE_EDU[which];
+    const host = document.getElementById('curveEdu');
+    host.innerHTML = `<h4 style="color:${e.color}">${e.title}</h4>` + e.body.map(b=>`<p>${b}</p>`).join('');
+    if (host.scrollIntoView) host.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+};
+
+
+/* ==========================================================================
+ * 11. SCENARIOS — one-click macro shocks. Each resets to the baseline, then
+ *     applies its slider settings and animates the curves into place.
+ * ======================================================================== */
+const SCENARIOS = [
+  { id:'covid', name:'COVID Recession', set:{conf:16, inv:22, exp:30, imp:42, gov:58},
+    steps:['A pandemic forces lockdowns and destroys confidence',
+           'Households stop discretionary spending and hoard savings',
+           'Firms shelve investment plans; export orders collapse',
+           'C, I and NX all fall together → AD shifts sharply LEFT',
+           'Equilibrium GDP falls well below potential',
+           'Unemployment rises; the price level falls',
+           'A deep RECESSIONARY GAP opens — the case for stimulus'] },
+
+  { id:'oil', name:'Oil Crisis', set:{oil:92, einf:66},
+    steps:['OPEC cuts supply; crude prices more than double',
+           'Fuel, freight and electricity bills jump for every firm',
+           'Production becomes expensive at every level of output',
+           'SRAS shifts LEFT','The price level RISES and real GDP FALLS',
+           'Inflation expectations rise, shifting SRAS left again',
+           'STAGFLATION — inflation and recession at the same time'] },
+
+  { id:'stimulus', name:'Government Stimulus', set:{gov:88, inv:58},
+    steps:['A large fiscal package funds roads, rail and housing',
+           'Contractors hire workers and buy materials',
+           'Wages are spent, and the multiplier amplifies the injection',
+           'AD shifts RIGHT','Real GDP rises and unemployment falls',
+           'The price level rises — beyond potential, mostly prices rise'] },
+
+  { id:'taxcut', name:'Tax Cut', set:{tax:20, conf:62},
+    steps:['Income tax slabs are cut sharply','Take-home pay rises for every household',
+           'Disposable income and confidence rise together','Consumption spending rises',
+           'AD shifts RIGHT','GDP rises; prices rise modestly'] },
+
+  { id:'repo', name:'RBI Repo Rate Cut', set:{rate:16, money:74, inv:64},
+    steps:['The RBI cuts the repo rate and injects liquidity',
+           'Banks reduce lending rates; EMIs fall','Housing, autos and corporate capex become affordable',
+           'Investment and interest-sensitive consumption rise','AD shifts RIGHT',
+           'Output rises with a lag; inflation edges up'] },
+
+  { id:'ai', name:'AI Revolution', set:{tech:92, prod:84},
+    steps:['AI diffuses across services and manufacturing',
+           'The same workers and machines produce far more output',
+           'Unit costs fall → SRAS shifts RIGHT',
+           'Productive capacity itself expands → LRAS shifts RIGHT',
+           'Real GDP RISES while the price level FALLS',
+           'Potential GDP is permanently higher — long-run growth, not a boom'] },
+
+  { id:'infra', name:'Infrastructure Boom', set:{cap:88, gov:70, prod:62},
+    steps:['A decade of ports, power and highway building matures',
+           'The capital stock per worker rises','Logistics costs fall economy-wide',
+           'LRAS shifts RIGHT — potential GDP is permanently higher',
+           'AD also shifts right while the projects are being built',
+           'Growth without the inflation an equal demand stimulus alone would cause'] },
+
+  { id:'strike', name:'Labour Strike', set:{labour:16, prod:38, einf:60},
+    steps:['A nationwide strike halts production',
+           'The effective labour force available to firms shrinks',
+           'LRAS shifts LEFT — potential GDP falls',
+           'Higher wage settlements raise unit costs → SRAS shifts LEFT',
+           'Output falls and the price level rises',
+           'Even unchanged GDP now looks inflationary against lower potential'] },
+
+  { id:'global', name:'Global Recession', set:{exp:14, conf:32, inv:32, fx:62},
+    steps:['Major trading partners fall into recession',
+           'Export orders are cancelled at home','Exporting firms cut shifts and jobs',
+           'Confidence and investment fall in sympathy','NX, C and I fall → AD shifts LEFT',
+           'A recessionary gap opens through the external channel'] },
+
+  { id:'exportboom', name:'Export Boom', set:{exp:88, fx:26, inv:66},
+    steps:['Global demand surges and the currency depreciates',
+           'Domestic goods become cheap for foreign buyers','Export order books fill up',
+           'Exporters expand capacity and hire','NX rises sharply → AD shifts RIGHT',
+           'GDP rises above potential; inflation pressure builds'] }
+];
+
+function applyScenario(sc){
+  CONFIG.ids.forEach(id => State.sliders[id] = 50);
+  State.manual = { ad:0, sras:0, lras:0 };
+  Object.keys(sc.set).forEach(k => State.sliders[k] = sc.set[k]);
+  UI.syncSliders();
+  commit({ key:sc.id, dir:1, label:sc.name, steps:sc.steps });
+}
+/* ==========================================================================
+ * 12. SLIDES — each lecture slide rebuilds the exact diagram taught in class
+ *      and explains what the student should read off it.
+ * ======================================================================== */
+const SLIDES = [
+  { n:1, t:'The Business Cycle', set:{},
+    note:'Real GDP does not grow smoothly — it fluctuates around a rising long-run trend. The trend is potential GDP (the green LRAS line); the fluctuations around it are the business cycle: <b>expansion → peak → recession → trough → recovery</b>. Watch the lower panel: every change you make repositions the economy on this cycle.',
+    steps:['Potential output grows steadily over time (LRAS drifts right)',
+           'Actual output swings above and below that trend',
+           'Above trend = boom, overtime, inflation pressure',
+           'Below trend = recession, idle capacity, unemployment',
+           'Macroeconomic policy tries to shrink these swings'] },
+
+  { n:2, t:'Aggregate Demand', set:{},
+    note:'AD plots total planned spending — <b>C + I + G + NX</b> — against the price level. It slopes downward for three reasons: the real-balance (wealth) effect, the interest-rate effect and the net-export effect. Move the demand-side sliders and watch the whole curve shift while its slope stays the same.',
+    steps:['AD = C + I + G + NX','A change in the PRICE LEVEL moves us ALONG the AD curve',
+           'A change in anything else SHIFTS the entire curve',
+           'Rightward shift = more spending demanded at every price level'] },
+
+  { n:3, t:'Aggregate Supply: SRAS and LRAS', set:{},
+    note:'SRAS slopes upward because wages and many input prices are sticky in the short run, so a higher price level widens margins and firms produce more. LRAS is vertical because in the long run every price and wage adjusts — output then depends only on real resources: labour, capital, technology and productivity.',
+    steps:['Short run: sticky wages → SRAS slopes upward',
+           'Near capacity SRAS gets steep — extra demand becomes pure inflation',
+           'Long run: all prices flexible → LRAS is vertical at potential GDP',
+           'Only real factors move LRAS'] },
+
+  { n:4, t:'Macroeconomic Equilibrium', set:{},
+    note:'Short-run equilibrium is where <b>AD meets SRAS</b> — that determines equilibrium GDP (Y*) and the equilibrium price level (P*). Long-run equilibrium requires all three curves to pass through one point. That is the situation on screen now: the economy is at full employment.',
+    steps:['AD ∩ SRAS gives Y* and P*','If Y* also equals potential GDP, the economy is in LONG-RUN equilibrium',
+           'Unemployment is then at its natural rate','There is no output gap to close'] },
+
+  { n:5, t:'Demand Shock', set:{conf:22, inv:28},
+    note:'A collapse in confidence and investment is a <b>negative demand shock</b>. AD shifts left; both output and the price level fall. Note the direction: in a demand shock, GDP and prices move in the <b>same</b> direction — that is how you tell it apart from a supply shock.',
+    steps:['Confidence and investment collapse','AD shifts LEFT','Real GDP falls','The price level falls',
+           'Unemployment rises above the natural rate','Demand shock signature: output ↓ and prices ↓ together'] },
+
+  { n:6, t:'Supply Shock', set:{oil:88},
+    note:'An oil price spike is a <b>negative supply shock</b>. SRAS shifts left; output falls while the price level rises. In a supply shock GDP and prices move in <b>opposite</b> directions — the diagnostic that separates it from a demand shock, and the reason it is so hard to treat.',
+    steps:['Input costs jump','SRAS shifts LEFT','Real GDP falls','The price level RISES',
+           'Supply shock signature: output ↓ but prices ↑'] },
+
+  { n:7, t:'Recessionary Gap', set:{conf:26, gov:34, inv:30},
+    note:'When equilibrium GDP falls <b>short</b> of potential, the shaded orange band is the <b>recessionary (deflationary) gap</b>. Resources are idle and cyclical unemployment appears. The self-correcting mechanism — falling wages shifting SRAS right — works, but slowly; that delay is the entire justification for active stabilisation policy.',
+    steps:['Y* < potential GDP','The orange band measures the recessionary gap',
+           'Unemployment exceeds the natural rate','Wages eventually fall → SRAS drifts right',
+           'Self-correction is slow — hence fiscal and monetary policy'] },
+
+  { n:8, t:'Inflationary Gap', set:{gov:84, money:78, conf:70},
+    note:'When equilibrium GDP <b>exceeds</b> potential, the shaded red band is the <b>inflationary gap</b>. The economy is running hot: overtime, bottlenecks, competitive bidding for scarce workers. Wage demands then push SRAS left until output returns to potential — at a permanently higher price level.',
+    steps:['Y* > potential GDP','The red band measures the inflationary gap',
+           'Unemployment falls below the natural rate','Wage demands rise → SRAS shifts LEFT',
+           'Output returns to potential; the price level stays higher permanently'] },
+
+  { n:9, t:'Stagflation', set:{oil:94, einf:74},
+    note:'Stagflation is <b>stagnation plus inflation</b>: a leftward SRAS shift raises prices while cutting output. Demand policy cannot fix both — stimulus adds to inflation, tightening deepens the slump. Only supply-side improvement (productivity, technology, cheaper inputs, credible expectations) shifts SRAS back to the right.',
+    steps:['A large adverse supply shock hits','SRAS shifts LEFT','Prices ↑ and output ↓ simultaneously',
+           'Expansionary policy → more inflation','Contractionary policy → deeper recession',
+           'Only supply-side reform resolves the dilemma'] },
+
+  { n:10, t:'Fiscal Policy', set:{gov:82, tax:24},
+    note:'Fiscal policy works on AD directly: higher <b>G</b> injects spending, lower <b>T</b> raises disposable income and consumption. The multiplier amplifies both. Starting from a recessionary gap this closes the gap; applied at full employment it mostly raises prices. That distinction — where you start from — is the whole exam question.',
+    steps:['Government raises spending and cuts taxes','G rises directly; C rises via disposable income',
+           'The multiplier amplifies the injection','AD shifts RIGHT',
+           'Gap closes if there was slack — otherwise inflation'] },
+
+  { n:11, t:'Monetary Policy', set:{rate:14, money:80},
+    note:'Monetary policy works on AD indirectly: the central bank changes the policy rate and liquidity, which changes borrowing costs, which changes <b>I</b> and interest-sensitive <b>C</b>. Transmission is slower and less certain than fiscal policy, but it is reversible and faster to enact.',
+    steps:['Central bank cuts the repo rate and expands liquidity','Bank lending rates and EMIs fall',
+           'Investment and durable consumption rise','AD shifts RIGHT',
+           'Output rises with a lag of several quarters'] },
+
+  { n:12, t:'Long-Run Growth', set:{tech:86, cap:84, labour:74, prod:84},
+    note:'Long-run growth is <b>not</b> a rightward AD shift — it is a rightward shift of <b>LRAS</b>. More labour, more capital, better technology and higher productivity raise what the economy can sustainably produce. Output rises and, because SRAS shifts right too, the price level can fall at the same time. This is the only permanent free lunch in macroeconomics.',
+    steps:['Labour force, capital stock, technology and productivity all improve',
+           'LRAS shifts RIGHT — potential GDP rises','SRAS shifts right alongside it',
+           'Real GDP rises AND the price level falls','Higher living standards, no inflation cost',
+           'Demand policy manages the cycle; supply-side policy raises the trend'] }
+];
+
+function applySlide(idx){
+  const s = SLIDES[idx];
+  CONFIG.ids.forEach(id => State.sliders[id] = 50);
+  State.manual = { ad:0, sras:0, lras:0 };
+  Object.keys(s.set).forEach(k => State.sliders[k] = s.set[k]);
+  UI.syncSliders();
+  document.querySelectorAll('.slide-btn').forEach((b,i)=> b.classList.toggle('active', i===idx));
+  commit({ key:'slide'+s.n, dir:1, label:s.t, steps:s.steps });
+  document.getElementById('slideNote').innerHTML =
+    `<h4>Slide ${s.n} — ${esc(s.t)}</h4><p>${s.note}</p>`;
+  document.getElementById('slideNote').style.display = 'block';
+}
+
+
+/* ==========================================================================
+ * 13. QUIZ MODE — random prediction questions; the correct answer is then
+ *      animated on the diagram so the student sees the mechanism, not a tick.
+ * ======================================================================== */
+const ANSWERS = ['AD shifts LEFT','AD shifts RIGHT','SRAS shifts LEFT','SRAS shifts RIGHT',
+                 'LRAS shifts RIGHT','LRAS shifts LEFT'];
+
+const QUESTIONS = [
+  { q:'The government sharply increases spending on infrastructure. Predict the immediate effect.',
+    a:'AD shifts RIGHT', set:{gov:86}, why:'Government spending is a direct component of AD. G rises, the multiplier amplifies it, and the whole AD curve moves right.' },
+  { q:'Income tax rates are raised sharply. Predict the effect.',
+    a:'AD shifts LEFT', set:{tax:84}, why:'Higher taxes cut disposable income, so consumption falls and AD shifts left.' },
+  { q:'Global crude oil prices double. Predict the effect.',
+    a:'SRAS shifts LEFT', set:{oil:90}, why:'Oil is an input to almost everything. Higher unit costs mean less is supplied at every price level — SRAS shifts left, producing stagflation.' },
+  { q:'A breakthrough in AI raises output per worker across the economy. Predict the effect on the SHORT-run supply curve.',
+    a:'SRAS shifts RIGHT', set:{tech:88, prod:82}, why:'Lower unit costs let firms supply more at every price level, so SRAS shifts right — and because capacity itself rises, LRAS shifts right too.' },
+  { q:'The central bank cuts the policy rate and expands liquidity. Predict the effect.',
+    a:'AD shifts RIGHT', set:{rate:16, money:78}, why:'Cheaper credit raises investment and interest-sensitive consumption, shifting AD right.' },
+  { q:'Immigration and rising participation expand the labour force permanently. Predict the effect.',
+    a:'LRAS shifts RIGHT', set:{labour:84}, why:'More workers raise what the economy can sustainably produce — potential GDP rises, so LRAS shifts right.' },
+  { q:'Workers and firms begin expecting much higher inflation next year. Predict the effect.',
+    a:'SRAS shifts LEFT', set:{einf:82}, why:'Expected inflation is built into wage settlements, raising unit costs before any extra output exists. SRAS shifts left — expectations are self-fulfilling.' },
+  { q:'A recession abroad wipes out export orders. Predict the effect.',
+    a:'AD shifts LEFT', set:{exp:16}, why:'Net exports are part of AD. Lower exports shift AD left through the external channel.' },
+  { q:'A decade of investment leaves the economy with a much larger capital stock. Predict the effect on potential output.',
+    a:'LRAS shifts RIGHT', set:{cap:86}, why:'A bigger capital stock raises sustainable capacity — LRAS, and therefore potential GDP, shifts right.' },
+  { q:'A prolonged national strike removes a large share of workers from production. Predict the effect on potential output.',
+    a:'LRAS shifts LEFT', set:{labour:18, einf:60}, why:'A smaller effective labour force lowers sustainable capacity, so LRAS shifts left and potential GDP falls.' },
+  { q:'Consumer confidence collapses after a financial scare. Predict the effect.',
+    a:'AD shifts LEFT', set:{conf:18}, why:'Precautionary saving replaces spending; consumption falls and AD shifts left.' },
+  { q:'The domestic currency depreciates significantly. Predict the effect on aggregate demand.',
+    a:'AD shifts RIGHT', set:{fx:18}, why:'Depreciation makes exports cheaper abroad and imports dearer at home, so net exports improve and AD shifts right.' }
+];
+
+const Quiz = {
+  next(){
+    const q = QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
+    /* build four options: the correct one plus three distractors */
+    const opts = [q.a];
+    while (opts.length < 4){
+      const cand = ANSWERS[Math.floor(Math.random()*ANSWERS.length)];
+      if (!opts.includes(cand)) opts.push(cand);
+    }
+    for (let i = opts.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+    State.quiz.current = q;
+    document.getElementById('quizQ').textContent = q.q;
+    document.getElementById('quizFeedback').innerHTML = '';
+    const host = document.getElementById('quizOpts');
+    host.innerHTML = opts.map((o,i)=>
+      `<button class="quiz-opt" data-opt="${esc(o)}">${String.fromCharCode(65+i)}) ${esc(o)}</button>`).join('');
+    host.querySelectorAll('.quiz-opt').forEach(b=>
+      b.addEventListener('click', ()=> this.answer(b.getAttribute('data-opt'), b)));
+  },
+
+  answer(choice, btn){
+    const q = State.quiz.current; if (!q) return;
+    if (btn.disabled) return;
+    const host = document.getElementById('quizOpts');
+    host.querySelectorAll('.quiz-opt').forEach(b=>{
+      b.disabled = true;
+      if (b.getAttribute('data-opt') === q.a) b.classList.add('correct');
+      else if (b === btn) b.classList.add('wrong');
+    });
+    State.quiz.asked++;
+    if (choice === q.a) State.quiz.right++;
+    document.getElementById('quizScore').textContent = `${State.quiz.right} / ${State.quiz.asked}`;
+    document.getElementById('quizFeedback').innerHTML =
+      `<span style="color:${choice===q.a?'var(--lras)':'var(--sras)'};font-weight:650">
+        ${choice===q.a?'Correct.':'Not quite — the answer is '+esc(q.a)+'.'}</span> ${q.why}
+       <br><span style="color:var(--ink-3)">Watch the diagram: the movement is being animated now.</span>`;
+
+    /* animate the correct mechanism on the diagram */
+    CONFIG.ids.forEach(id => State.sliders[id] = 50);
+    State.manual = { ad:0, sras:0, lras:0 };
+    Object.keys(q.set).forEach(k => State.sliders[k] = q.set[k]);
+    UI.syncSliders();
+    commit({ key:'quiz', dir:1, label:'Quiz', steps:[q.q, q.a, q.why] });
+  }
+};
+
+
+/* ==========================================================================
+ * 14. BOOT
+ * ======================================================================== */
+(function boot(){
+  /* slide note container, injected above the diagnosis callout */
+  const note = document.createElement('div');
+  note.className = 'callout'; note.id = 'slideNote'; note.style.display = 'none';
+  note.style.background = 'var(--bg-2)';
+  const diag = document.getElementById('diagnosis');
+  diag.parentNode.insertBefore(note, diag);
+
+  /* left panel */
+  UI.buildControls();
+
+  /* scenario buttons */
+  document.getElementById('scenarios').innerHTML =
+    SCENARIOS.map(s=>`<button class="btn" data-sc="${s.id}">${esc(s.name)}</button>`).join('');
+  document.getElementById('scenarios').addEventListener('click', ev=>{
+    const b = ev.target.closest('[data-sc]'); if (!b) return;
+    const sc = SCENARIOS.find(s=>s.id === b.getAttribute('data-sc'));
+    document.querySelectorAll('.slide-btn').forEach(x=>x.classList.remove('active'));
+    document.getElementById('slideNote').style.display = 'none';
+    applyScenario(sc);
+  });
+
+  /* slide navigation */
+  document.getElementById('slideList').innerHTML =
+    SLIDES.map((s,i)=>`<button class="slide-btn" data-slide="${i}"><b>Slide ${s.n}</b>${esc(s.t)}</button>`).join('');
+  document.getElementById('slideList').addEventListener('click', ev=>{
+    const b = ev.target.closest('[data-slide]'); if (!b) return;
+    applySlide(+b.getAttribute('data-slide'));
+  });
+
+  /* reset */
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    CONFIG.ids.forEach(id => State.sliders[id] = 50);
+    State.manual = { ad:0, sras:0, lras:0 };
+    UI.syncSliders();
+    document.querySelectorAll('.slide-btn').forEach(x=>x.classList.remove('active'));
+    document.getElementById('slideNote').style.display = 'none';
+    commit({ key:'reset', dir:1, label:'Reset',
+      steps:['Every control returns to its neutral setting',
+             'AD, SRAS and LRAS intersect at a single point',
+             'The economy is at full employment: Y* = potential GDP',
+             'No output gap, natural rate of unemployment'] });
+  });
+
+  /* quiz */
+  document.getElementById('btnQuiz').addEventListener('click', ()=> Quiz.next());
+
+  /* first paint */
+  State.solved = Model.solve(State);
+  Dash.build();
+  State.anim = { ad:State.solved.adShift, sras:State.solved.srasShift, lras:State.solved.lrasShift };
+  Render.chart(); Render.cycle(); Narrative.render();
+  UI.initDrag();
+  Quiz.next();
+  window.addEventListener('resize', ()=>{ Render.chart(); Render.cycle(); });
+
+  /* expose for console experimentation / testing */
+  window.ADAS = { CONFIG, Model, State, Render, commit, applyScenario, applySlide, Quiz };
+})();
+</script>
+</body>
+</html>
