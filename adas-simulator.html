@@ -160,8 +160,8 @@ svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-web
 .proj{stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:5 4}
 .eq-dot{fill:#fff;stroke:var(--ink);stroke-width:2.4}
 .eq-halo{fill:var(--ink);opacity:.10}
-.readout{font-size:10.5px;font-family:var(--mono);fill:var(--ink)}
-.readout-box{fill:#fff;stroke:var(--line);rx:5}
+.readout{font-size:11px;font-family:var(--mono);font-weight:600;fill:var(--ink);
+  paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
 .gap-fill.rec{fill:var(--warn);opacity:.16}
 .gap-fill.inf{fill:var(--danger);opacity:.14}
 .gap-tag{font-size:10.5px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3.5px}
@@ -689,11 +689,10 @@ const Render = {
     parts.push(`<circle class="eq-halo" cx="${ex}" cy="${ey}" r="12"/>`);
     parts.push(`<circle class="eq-dot" cx="${ex}" cy="${ey}" r="5.5"/>`);
 
-    /* axis call-outs for P* and Y* */
-    parts.push(`<rect class="readout-box" x="${p.left-62}" y="${ey-9}" width="52" height="18" rx="4"/>`);
-    parts.push(`<text class="readout" x="${p.left-36}" y="${ey+4}" text-anchor="middle">P* ${fmt(eq.P,1)}</text>`);
-    parts.push(`<rect class="readout-box" x="${ex-30}" y="${p.bottom+22}" width="60" height="18" rx="4"/>`);
-    parts.push(`<text class="readout" x="${ex}" y="${p.bottom+35}" text-anchor="middle">Y* ${fmt(eq.Y,1)}</text>`);
+    /* Call-outs for P* and Y*, drawn INSIDE the plot with a white halo so they
+       never collide with the axis titles or the tick labels. */
+    parts.push(`<text class="readout" x="${p.left+8}" y="${clamp(ey-7, p.top+11, p.bottom-4)}">P* ${fmt(eq.P,1)}</text>`);
+    parts.push(`<text class="readout" x="${clamp(ex+8, p.left+8, p.right-58)}" y="${p.bottom-9}">Y* ${fmt(eq.Y,1)}</text>`);
 
     svg.innerHTML = parts.join('');
   },
